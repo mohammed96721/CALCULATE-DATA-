@@ -38,6 +38,11 @@
             text-align: center;
             font-weight: bold;
         }
+        #savePDF {
+            background-color: #e74c3c;
+            margin-top: 10px;
+            display: none; /* مخفي حتى تظهر النتائج */
+        }
     </style>
 </head>
 <body>
@@ -79,7 +84,11 @@
         <button type="submit">حساب التكلفة</button>
     </form>
     <div id="result"></div>
+    <button id="savePDF">حفظ النتيجة كـ PDF</button>
 
+    <!-- مكتبة jsPDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
     <script>
         document.getElementById('calculatorForm').addEventListener('submit', async function(e) {
             e.preventDefault();
@@ -104,8 +113,12 @@
 
                 const result = await response.json();
                 if (result.total) {
-                    document.getElementById('result').textContent = 
-                        `التكلفة الإجمالية: ${result.total.toLocaleString()} ريال`;
+                    const resultText = `التكلفة الإجمالية: ${result.total.toLocaleString()} ريال`;
+                    document.getElementById('result').textContent = resultText;
+                    document.getElementById('savePDF').style.display = 'block';
+                    
+                    // تخزين النتيجة للاستخدام لاحقاً
+                    document.getElementById('savePDF').dataset.result = resultText;
                 } else {
                     document.getElementById('result').textContent = 
                         'حدث خطأ في الحساب: ' + (result.error || 'خطأ غير معروف');
@@ -114,6 +127,29 @@
                 document.getElementById('result').textContent = 
                     'حدث خطأ في الاتصال بالخادم';
             }
+        });
+
+        // حفظ كـ PDF
+        document.getElementById('savePDF').addEventListener('click', function() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // النتيجة المحفوظة
+            const resultText = this.dataset.result;
+            
+            // إعداد المستند
+            doc.setFont('Arial', 'normal');
+            doc.setFontSize(16);
+            doc.text('نتيجة حساب تكاليف البناء', 105, 20, { align: 'center' });
+            
+            doc.setFontSize(14);
+            doc.text(resultText, 105, 40, { align: 'center' });
+            
+            doc.setFontSize(10);
+            doc.text('تم الإنشاء في: ' + new Date().toLocaleString(), 105, 60, { align: 'center' });
+            
+            // حفظ الملف
+            doc.save('نتيجة_تكاليف_البناء.pdf');
         });
     </script>
 </body>
