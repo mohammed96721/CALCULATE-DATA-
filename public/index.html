@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>حاسبة تكاليف البناء</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f8f8f8;
+            text-align: center;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>حاسبة تكاليف البناء</h1>
+    <form id="calculatorForm">
+        <div class="form-group">
+            <label for="area">المساحة (م²):</label>
+            <input type="number" id="area" required>
+        </div>
+        <div class="form-group">
+            <label for="floors">عدد الطوابق:</label>
+            <input type="number" id="floors" min="1" value="1" required>
+        </div>
+        <div class="form-group">
+            <label for="rooms">عدد الغرف:</label>
+            <input type="number" id="rooms" min="1" value="1" required>
+        </div>
+        <div class="form-group">
+            <label for="bathrooms">عدد دورات المياه:</label>
+            <input type="number" id="bathrooms" min="1" value="1" required>
+        </div>
+        <div class="form-group">
+            <label for="finish">نوع التشطيب:</label>
+            <select id="finish" required>
+                <option value="economy">اقتصادي</option>
+                <option value="standard">متوسط</option>
+                <option value="luxury">فاخر</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>مصعد:</label>
+            <div>
+                <input type="radio" id="elevatorYes" name="elevator" value="yes">
+                <label for="elevatorYes" style="display: inline;">نعم</label>
+                <input type="radio" id="elevatorNo" name="elevator" value="no" checked>
+                <label for="elevatorNo" style="display: inline;">لا</label>
+            </div>
+        </div>
+        <button type="submit">حساب التكلفة</button>
+    </form>
+    <div id="result"></div>
+
+    <script>
+        document.getElementById('calculatorForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const data = {
+                area: parseFloat(document.getElementById('area').value),
+                floors: parseInt(document.getElementById('floors').value),
+                rooms: parseInt(document.getElementById('rooms').value),
+                bathrooms: parseInt(document.getElementById('bathrooms').value),
+                finish: document.getElementById('finish').value,
+                elevator: document.querySelector('input[name="elevator"]:checked').value
+            };
+
+            try {
+                const response = await fetch('/api/calculate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+                if (result.total) {
+                    document.getElementById('result').textContent = 
+                        `التكلفة الإجمالية: ${result.total.toLocaleString()} ريال`;
+                } else {
+                    document.getElementById('result').textContent = 
+                        'حدث خطأ في الحساب: ' + (result.error || 'خطأ غير معروف');
+                }
+            } catch (error) {
+                document.getElementById('result').textContent = 
+                    'حدث خطأ في الاتصال بالخادم';
+            }
+        });
+    </script>
+</body>
+</html>
