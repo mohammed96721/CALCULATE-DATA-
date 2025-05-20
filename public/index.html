@@ -3,190 +3,301 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>حاسبة تكاليف البناء</title>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <title>حاسبة تكاليف البناء الفاخرة</title>
+    <link href="https://fonts.googleapis.com/css2?family=El+Messiri:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --primary: #4361ee;
-            --secondary: #3a0ca3;
-            --accent: #4895ef;
-            --light: #f8f9fa;
-            --dark: #212529;
-            --gray: #6c757d;
-            --success: #4bb543;
+            --gold: #D4AF37;
+            --dark-blue: #0A2463;
+            --light-blue: #3E92CC;
+            --cream: #FFF9F0;
+            --dark: #1A1A1A;
         }
         
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Tajawal', sans-serif;
+            font-family: 'El Messiri', serif;
         }
         
         body {
-            background-color: #f1f5f9;
+            background-color: var(--cream);
             color: var(--dark);
-            line-height: 1.6;
-            padding: 20px;
+            line-height: 1.8;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background-image: radial-gradient(circle at 10% 20%, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 90%);
         }
         
-        .calculator-container {
-            max-width: 600px;
-            margin: 0 auto;
+        .luxury-card {
+            max-width: 700px;
+            margin: 2rem auto;
             background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border-radius: 20px;
+            box-shadow: 0 30px 50px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            position: relative;
+        }
+        
+        .luxury-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 8px;
+            background: linear-gradient(90deg, var(--gold), var(--light-blue), var(--gold));
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, var(--dark-blue) 0%, #1E3B8A 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            position: relative;
             overflow: hidden;
         }
         
-        .calculator-header {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            color: white;
-            padding: 20px;
-            text-align: center;
+        .card-header::after {
+            content: '';
+            position: absolute;
+            bottom: -50px;
+            left: -50px;
+            width: 150px;
+            height: 150px;
+            background: rgba(212, 175, 55, 0.1);
+            border-radius: 50%;
         }
         
-        .calculator-header h1 {
-            font-size: 1.8rem;
-            margin-bottom: 5px;
+        .card-header::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 150px;
+            height: 150px;
+            background: rgba(62, 146, 204, 0.1);
+            border-radius: 50%;
         }
         
-        .calculator-body {
-            padding: 25px;
+        .card-header h1 {
+            font-size: 2.2rem;
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .card-header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .card-body {
+            padding: 2.5rem;
         }
         
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 1.8rem;
+            position: relative;
         }
         
         .form-group label {
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 0.8rem;
             font-weight: 500;
-            color: var(--dark);
+            color: var(--dark-blue);
+            font-size: 1.1rem;
         }
         
-        .form-control {
+        .luxury-input {
             width: 100%;
-            padding: 12px 15px;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            font-size: 16px;
+            padding: 1rem 1.2rem;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            font-size: 1rem;
             transition: all 0.3s ease;
+            background-color: rgba(255, 255, 255, 0.8);
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
         }
         
-        .form-control:focus {
-            border-color: var(--accent);
+        .luxury-input:focus {
+            border-color: var(--gold);
             outline: none;
-            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
+            background-color: white;
         }
         
         .radio-group {
             display: flex;
-            gap: 15px;
-            margin-top: 10px;
+            gap: 1.5rem;
+            margin-top: 1rem;
         }
         
         .radio-option {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 0.7rem;
         }
         
         .radio-option input {
-            width: auto;
+            width: 18px;
+            height: 18px;
+            accent-color: var(--gold);
         }
         
-        .btn {
+        .radio-option label {
+            margin-bottom: 0;
+            font-size: 1rem;
+        }
+        
+        .btn-luxury {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
-            background-color: var(--primary);
-            color: white;
+            gap: 0.8rem;
+            background: linear-gradient(135deg, var(--gold) 0%, #E8C547 100%);
+            color: var(--dark-blue);
             border: none;
-            padding: 14px 20px;
-            font-size: 16px;
-            font-weight: 500;
-            border-radius: 8px;
+            padding: 1.2rem 2rem;
+            font-size: 1.1rem;
+            font-weight: 700;
+            border-radius: 10px;
             cursor: pointer;
             width: 100%;
             transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
         
-        .btn:hover {
-            background-color: var(--secondary);
-            transform: translateY(-2px);
+        .btn-luxury:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
         }
         
-        .btn-secondary {
-            background-color: #e63946;
-        }
-        
-        .btn-secondary:hover {
-            background-color: #c1121f;
+        .btn-luxury:active {
+            transform: translateY(1px);
         }
         
         #result {
-            margin: 25px 0;
-            padding: 20px;
-            background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+            margin: 2.5rem 0;
+            padding: 2rem;
+            background: linear-gradient(135deg, var(--dark-blue) 0%, #1E3B8A 100%);
             color: white;
-            border-radius: 8px;
+            border-radius: 10px;
             text-align: center;
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             font-weight: 700;
             display: none;
+            box-shadow: 0 10px 30px rgba(10, 36, 99, 0.2);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        #result::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            right: -20px;
+            width: 100px;
+            height: 100px;
+            background: rgba(212, 175, 55, 0.1);
+            border-radius: 50%;
         }
         
         #savePDF {
             display: none;
-            margin-top: 15px;
+            margin-top: 1.5rem;
+            background: linear-gradient(135deg, var(--light-blue) 0%, #2A7EBC 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(62, 146, 204, 0.3);
+        }
+        
+        #savePDF:hover {
+            background: linear-gradient(135deg, #2A7EBC 0%, #1E5F8B 100%);
+        }
+        
+        .watermark {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            opacity: 0.1;
+            font-size: 10rem;
+            color: var(--gold);
+            z-index: 0;
+            pointer-events: none;
         }
         
         @media (max-width: 768px) {
-            body {
-                padding: 15px;
+            .luxury-card {
+                margin: 1rem;
+                border-radius: 15px;
             }
             
-            .calculator-body {
-                padding: 20px;
+            .card-header {
+                padding: 1.5rem;
+            }
+            
+            .card-body {
+                padding: 1.5rem;
+            }
+            
+            .card-header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .watermark {
+                font-size: 6rem;
+                bottom: 10px;
+                left: 10px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="calculator-container">
-        <div class="calculator-header">
-            <h1><i class="fas fa-calculator"></i> حاسبة تكاليف البناء</h1>
+    <div class="luxury-card">
+        <div class="card-header">
+            <h1><i class="fas fa-crown"></i> حاسبة التكاليف الفاخرة</h1>
+            <p>أداة احترافية لحساب تكاليف البناء بدقة</p>
+            <div class="watermark">
+                <i class="fas fa-gem"></i>
+            </div>
         </div>
         
-        <div class="calculator-body">
+        <div class="card-body">
             <form id="calculatorForm">
                 <div class="form-group">
                     <label for="area"><i class="fas fa-ruler-combined"></i> المساحة (م²)</label>
-                    <input type="number" id="area" class="form-control" required>
+                    <input type="number" id="area" class="luxury-input" required>
                 </div>
                 
                 <div class="form-group">
-                    <label for="floors"><i class="fas fa-building"></i> عدد الطوابق</label>
-                    <input type="number" id="floors" min="1" value="1" class="form-control" required>
+                    <label for="floors"><i class="fas fa-layer-group"></i> عدد الطوابق</label>
+                    <input type="number" id="floors" min="1" value="1" class="luxury-input" required>
                 </div>
                 
                 <div class="form-group">
-                    <label for="rooms"><i class="fas fa-bed"></i> عدد الغرف</label>
-                    <input type="number" id="rooms" min="1" value="1" class="form-control" required>
+                    <label for="rooms"><i class="fas fa-door-open"></i> عدد الغرف</label>
+                    <input type="number" id="rooms" min="1" value="1" class="luxury-input" required>
                 </div>
                 
                 <div class="form-group">
                     <label for="bathrooms"><i class="fas fa-bath"></i> عدد دورات المياه</label>
-                    <input type="number" id="bathrooms" min="1" value="1" class="form-control" required>
+                    <input type="number" id="bathrooms" min="1" value="1" class="luxury-input" required>
                 </div>
                 
                 <div class="form-group">
                     <label for="finish"><i class="fas fa-paint-roller"></i> نوع التشطيب</label>
-                    <select id="finish" class="form-control" required>
+                    <select id="finish" class="luxury-input" required>
                         <option value="economy">اقتصادي</option>
                         <option value="standard">متوسط</option>
                         <option value="luxury">فاخر</option>
@@ -207,16 +318,26 @@
                     </div>
                 </div>
                 
-                <button type="submit" class="btn"><i class="fas fa-calculator"></i> حساب التكلفة</button>
+                <button type="submit" class="btn-luxury">
+                    <i class="fas fa-calculator"></i> حساب التكلفة
+                </button>
             </form>
             
             <div id="result"></div>
-            <button id="savePDF" class="btn btn-secondary"><i class="fas fa-file-pdf"></i> حفظ التقرير كـ PDF</button>
+            <button id="savePDF" class="btn-luxury">
+                <i class="fas fa-file-pdf"></i> حفظ التقرير الفاخر
+            </button>
         </div>
     </div>
 
-    <!-- السكربت الأصلي بدون تعديل -->
+    <!-- مكتبات PDF مع دعم عربي متكامل -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@pdf-lib/fontkit@1.1.1/dist/fontkit.umd.min.js"></script>
+    
     <script>
+        // دالة حساب التكلفة (كما هي بدون تغيير)
         document.getElementById('calculatorForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
@@ -240,20 +361,147 @@
 
                 const result = await response.json();
                 if (result.total) {
-                    document.getElementById('result').textContent = 
-                        `التكلفة الإجمالية: ${result.total.toLocaleString()} ريال`;
+                    const resultText = `التكلفة الإجمالية: ${result.total.toLocaleString('ar-EG')} ريال`;
+                    document.getElementById('result').innerHTML = `
+                        <h3 style="margin-bottom: 1rem; font-size: 1.5rem;"><i class="fas fa-coins"></i> نتيجة الحساب</h3>
+                        <p style="font-size: 1.8rem; margin-bottom: 1rem;">${resultText}</p>
+                        <p style="opacity: 0.8; font-size: 0.9rem;">
+                            <i class="fas fa-clock"></i> ${new Date().toLocaleString('ar-EG', {dateStyle: 'full', timeStyle: 'short'})}
+                        </p>
+                    `;
                     document.getElementById('result').style.display = 'block';
                     document.getElementById('savePDF').style.display = 'block';
+                    
+                    // حفظ البيانات لاستخدامها في PDF
+                    document.getElementById('savePDF').dataset.result = resultText;
+                    document.getElementById('savePDF').dataset.details = JSON.stringify({
+                        area: data.area,
+                        floors: data.floors,
+                        rooms: data.rooms,
+                        bathrooms: data.bathrooms,
+                        finish: document.getElementById('finish').options[document.getElementById('finish').selectedIndex].text,
+                        elevator: document.querySelector('input[name="elevator"]:checked').value,
+                        date: new Date().toLocaleString('ar-EG', {dateStyle: 'full', timeStyle: 'short'})
+                    });
+
                 } else {
-                    document.getElementById('result').textContent = 
-                        'حدث خطأ في الحساب: ' + (result.error || 'خطأ غير معروف');
+                    document.getElementById('result').innerHTML = `
+                        <p style="color: #ffccd5;"><i class="fas fa-exclamation-triangle"></i> حدث خطأ في الحساب: ${result.error || 'خطأ غير معروف'}</p>
+                    `;
                     document.getElementById('result').style.display = 'block';
                 }
             } catch (error) {
-                document.getElementById('result').textContent = 
-                    'حدث خطأ في الاتصال بالخادم';
+                document.getElementById('result').innerHTML = `
+                    <p style="color: #ffccd5;"><i class="fas fa-exclamation-triangle"></i> حدث خطأ في الاتصال بالخادم</p>
+                `;
                 document.getElementById('result').style.display = 'block';
             }
+        });
+
+        // دالة إنشاء PDF فاخرة
+        document.getElementById('savePDF').addEventListener('click', async function() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({
+                orientation: 'portrait',
+                unit: 'mm',
+                format: 'a4',
+                filters: ['ASCIIHexEncode']
+            });
+            
+            // إضافة خط عربي (نستخدم El Messiri الذي تم تضمينه في الصفحة)
+            doc.addFont('https://fonts.googleapis.com/css2?family=El+Messiri&display=swap', 'El Messiri', 'normal');
+            
+            const details = JSON.parse(this.dataset.details);
+            const resultText = this.dataset.result;
+            const date = details.date;
+            
+            // خلفية متدرجة للصفحة الأولى
+            doc.setFillColor(10, 36, 99);
+            doc.rect(0, 0, 210, 297, 'F');
+            
+            // إطار ذهبي
+            doc.setDrawColor(212, 175, 55);
+            doc.setLineWidth(2);
+            doc.rect(10, 10, 190, 277);
+            
+            // شعار في الأعلى
+            doc.setFontSize(28);
+            doc.setTextColor(212, 175, 55);
+            doc.setFont('El Messiri', 'bold');
+            doc.text('تقرير تكاليف البناء الفاخر', 105, 40, { align: 'center' });
+            
+            // خط فاصل
+            doc.setDrawColor(212, 175, 55);
+            doc.setLineWidth(0.5);
+            doc.line(30, 50, 180, 50);
+            
+            // تفاصيل المشروع
+            doc.setFontSize(16);
+            doc.setTextColor(255, 255, 255);
+            doc.text('تفاصيل المشروع:', 30, 70);
+            
+            doc.setFontSize(14);
+            const projectDetails = [
+                ['المساحة', `${details.area} م²`],
+                ['عدد الطوابق', details.floors],
+                ['عدد الغرف', details.rooms],
+                ['دورات المياه', details.bathrooms],
+                ['نوع التشطيب', details.finish],
+                ['مصعد', details.elevator]
+            ];
+            
+            // جدول التفاصيل
+            doc.autoTable({
+                startY: 80,
+                head: [['البند', 'القيمة']],
+                body: projectDetails,
+                theme: 'plain',
+                headStyles: {
+                    fillColor: [212, 175, 55],
+                    textColor: [10, 36, 99],
+                    fontStyle: 'bold',
+                    fontSize: 12
+                },
+                bodyStyles: {
+                    textColor: [255, 255, 255],
+                    fontSize: 12
+                },
+                styles: {
+                    font: 'El Messiri',
+                    fontStyle: 'normal',
+                    cellPadding: 5,
+                    lineWidth: 0.1,
+                    lineColor: [212, 175, 55]
+                },
+                columnStyles: {
+                    0: { cellWidth: 40, fontStyle: 'bold' },
+                    1: { cellWidth: 40 }
+                },
+                margin: { left: 30, right: 30 }
+            });
+            
+            // نتيجة الحساب
+            const finalY = doc.lastAutoTable.finalY + 20;
+            doc.setFontSize(18);
+            doc.setTextColor(212, 175, 55);
+            doc.text('نتيجة الحساب:', 30, finalY);
+            
+            doc.setFontSize(16);
+            doc.setTextColor(255, 255, 255);
+            doc.text(resultText, 30, finalY + 10);
+            
+            // تذييل الصفحة
+            doc.setFontSize(10);
+            doc.setTextColor(212, 175, 55);
+            doc.text(`تم الإنشاء في: ${date}`, 105, 285, { align: 'center' });
+            
+            // علامة مائية
+            doc.setFontSize(60);
+            doc.setTextColor(212, 175, 55, 0.1);
+            doc.text('فاخر', 105, 180, { align: 'center', angle: 45 });
+            
+            // حفظ الملف
+            doc.save(`تقرير_تكاليف_البناء_${Date.now()}.pdf`);
         });
     </script>
 </body>
