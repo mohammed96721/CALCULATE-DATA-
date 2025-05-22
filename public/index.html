@@ -797,46 +797,53 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
     
     <script>
-        // تفعيل الأقسام القابلة للطي
-        function setupToggleSection(toggleId, contentId) {
-            const toggle = document.getElementById(toggleId);
-            const content = document.getElementById(contentId);
-            const icon = toggle.querySelector('.toggle-icon i');
-            
-            toggle.addEventListener('click', function() {
-                content.classList.toggle('hidden');
-                if (content.classList.contains('hidden')) {
-                    icon.classList.remove('fa-minus');
-                    icon.classList.add('fa-plus');
-                } else {
-                    icon.classList.remove('fa-plus');
-                    icon.classList.add('fa-minus');
-                }
-            });
-        }
+    // تفعيل الأقسام القابلة للطي
+    function setupToggleSection(toggleId, contentId) {
+        const toggle = document.getElementById(toggleId);
+        const content = document.getElementById(contentId);
+        const icon = toggle.querySelector('.toggle-icon i');
         
-        // إعداد جميع الأقسام القابلة للطي
-        setupToggleSection('toggleConcreteColumns', 'concreteColumnsInfo');
-        setupToggleSection('toggleApartments', 'apartmentsInfo');
-        setupToggleSection('toggleMapDetails', 'mapDetailsInfo');
-        setupToggleSection('toggleInternalWalls', 'internalWallsInfo');
-        setupToggleSection('toggleBasement', 'basementInfo');
-        
-        // إظهار/إخفاء حقول الطابوق المخصصة
-        document.getElementById('brickType').addEventListener('change', function() {
-            document.getElementById('otherBrickInfo').classList.toggle('hidden', this.value !== 'other');
+        toggle.addEventListener('click', function() {
+            content.classList.toggle('hidden');
+            if (content.classList.contains('hidden')) {
+                icon.classList.remove('fa-minus');
+                icon.classList.add('fa-plus');
+            } else {
+                icon.classList.remove('fa-plus');
+                icon.classList.add('fa-minus');
+            }
         });
+    }
+    
+    // إعداد جميع الأقسام القابلة للطي
+    setupToggleSection('toggleConcreteColumns', 'concreteColumnsInfo');
+    setupToggleSection('toggleApartments', 'apartmentsInfo');
+    setupToggleSection('toggleMapDetails', 'mapDetailsInfo');
+    setupToggleSection('toggleInternalWalls', 'internalWallsInfo');
+    setupToggleSection('toggleBasement', 'basementInfo');
+    
+    // إظهار/إخفاء حقول الطابوق المخصصة
+    document.getElementById('brickType').addEventListener('change', function() {
+        document.getElementById('otherBrickInfo').classList.toggle('hidden', this.value !== 'other');
+    });
+    
+    // إظهار/إخفاء حقول الواجهة المخصصة
+    document.getElementById('facadeType').addEventListener('change', function() {
+        document.getElementById('customFacadeInfo').classList.toggle('hidden', this.value !== 'custom');
+    });
+    
+    // معالجة إرسال النموذج (الجزء المعدل بالكامل)
+    document.getElementById('buildingForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
         
-        // إظهار/إخفاء حقول الواجهة المخصصة
-        document.getElementById('facadeType').addEventListener('change', function() {
-            document.getElementById('customFacadeInfo').classList.toggle('hidden', this.value !== 'custom');
-        });
-        
-        // معالجة إرسال النموذج
-        document.getElementById('buildingForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            // جمع البيانات من النموذج
+        // تعطيل زر الإرسال أثناء المعالجة
+        const submitBtn = e.target.querySelector('button[type="submit"]');
+        const originalBtnText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحساب...';
+        submitBtn.disabled = true;
+
+        try {
+            // 1. جمع البيانات من النموذج
             const formData = {
                 customer: {
                     name: document.getElementById('customerName').value,
@@ -869,11 +876,12 @@
                     flooring: parseFloat(document.getElementById('flooringPrice').value),
                     wallInstallation: parseFloat(document.getElementById('wallInstallationPrice').value),
                     wallPainting: parseFloat(document.getElementById('wallPaintingPrice').value),
-                    windowsDoors: parseFloat(document.getElementById('windowsDoorsPrice').value)
+                    windowsDoors: parseFloat(document.getElementById('windowsDoorsPrice').value),
+                    stairsRailing: parseFloat(document.getElementById('stairsRailingPrice').value || 0)
                 }
             };
-            
-            // إضافة الحقول الاختيارية إذا كانت مرئية
+
+            // 2. إضافة الحقول الاختيارية إذا كانت مرئية
             if (!document.getElementById('otherBrickInfo').classList.contains('hidden')) {
                 formData.building.brickDetails = {
                     width: parseFloat(document.getElementById('brickWidth').value),
@@ -932,146 +940,173 @@
                     price: parseFloat(document.getElementById('basementPrice').value)
                 };
             }
+
+            // 3. إرسال البيانات إلى API
+            const response = await fetch('/api/calculate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            });
             
-            formData.building.stairsRailing = {
-                length: parseFloat(document.getElementById('stairsRailingLength').value),
-                price: parseFloat(document.getElementById('stairsRailingPrice').value)
-            };
-            
-       try {
-        // إرسال البيانات إلى API
-        const response = await fetch('/api/calculate', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(formData)
-        });
-        
-        if (!response.ok) throw new Error('فشل الاتصال بالخادم');
-        
-        // استقبال الرد من API
-        const result = await response.json();
-        console.log("البيانات المرتدة من API:", result);
-        
-        // إنشاء PDF كامل من جميع البيانات
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        
-        // إعدادات أساسية للPDF
-        doc.setFont('Helvetica', 'normal');
-        doc.setFontSize(12);
-        let yPosition = 20;
-        
-        // دالة مساعدة لإضافة نص مع التحكم في المسافات
-        const addText = (text, x = 14) => {
-            doc.text(text, x, yPosition);
-            yPosition += 10;
-            if (yPosition > 280) {
-                doc.addPage();
-                yPosition = 20;
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'فشل في معالجة البيانات');
             }
-        };
-        
-        // عنوان المستند
-        doc.setFontSize(16);
-        addText('تفاصيل مشروع البناء - البيانات المدخلة', 70);
-        doc.setFontSize(12);
-        addText('_____________________________________________');
-        yPosition += 5;
-        
-        // معلومات الزبون
-        doc.setFontSize(14);
-        addText('معلومات الزبون:');
-        doc.setFontSize(12);
-        addText(`الاسم الكامل: ${result.originalData.customer.name}`);
-        addText(`رقم الهاتف: ${result.originalData.customer.phone}`);
-        yPosition += 5;
-        
-        // موقع الأرض
-        doc.setFontSize(14);
-        addText('موقع الأرض:');
-        doc.setFontSize(12);
-        addText(`المحافظة: ${result.originalData.location.governorate}`);
-        addText(`المنطقة/الحي: ${result.originalData.location.area}`);
-        yPosition += 5;
-        
-        // مواصفات الأرض
-        doc.setFontSize(14);
-        addText('مواصفات الأرض:');
-        doc.setFontSize(12);
-        addText(`مساحة الأرض: ${result.originalData.land.area} م²`);
-        addText(`عرض الواجهة: ${result.originalData.land.facadeWidth} م`);
-        yPosition += 5;
-        
-        // مواصفات البناء
-        doc.setFontSize(14);
-        addText('مواصفات البناء:');
-        doc.setFontSize(12);
-        addText(`عدد الطوابق: ${result.originalData.building.floors}`);
-        addText(`عدد الغرف: ${result.originalData.building.rooms}`);
-        addText(`عدد الحمامات: ${result.originalData.building.bathrooms}`);
-        addText(`نوع الطابوق: ${result.originalData.building.brickType}`);
-        // ... (أضف باقي الحقول بنفس الطريقة)
-        
-        // حفظ الملف
-        const timestamp = new Date().toISOString().replace(/[:.]/g,'-');
-        doc.save(`تفاصيل_البناء_${timestamp}.pdf`);
-        
-        // عرض التنبيه
-        alert("تم إنشاء ملف PDF بنجاح يحتوي على جميع البيانات المدخلة!");
-        
-    } catch (error) {
-        console.error('Error:', error);
-        alert('حدث خطأ أثناء الاتصال بالخادم: ' + error.message);
-    }
-});
-        
-        // عرض نتيجة الحساب
-        function showResult(result) {
+            
+            // 4. استقبال البيانات المعالجة
+            const result = await response.json();
+            console.log("البيانات المرتدة من API:", result);
+
+            // 5. إنشاء PDF من البيانات
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({
+                orientation: 'portrait',
+                unit: 'mm',
+                format: 'a4'
+            });
+
+            // إضافة الخط العربي
+            doc.addFont('https://fonts.googleapis.com/css2?family=Tajawal&display=swap', 'Tajawal', 'normal');
+            doc.setFont('Tajawal');
+
+            // إعدادات المستند
+            doc.setDocumentProperties({
+                title: 'تقرير تكاليف البناء',
+                subject: 'بيانات مشروع بناء',
+                author: 'نظام حساب التكاليف',
+                language: 'ar'
+            });
+
+            let yPosition = 20;
+            
+            // دالة مساعدة لإضافة نص
+            const addText = (text, fontSize = 12, isBold = false, x = 20, align = 'right') => {
+                doc.setFontSize(fontSize);
+                doc.setFont('Tajawal', isBold ? 'bold' : 'normal');
+                doc.text(text, x, yPosition, { align });
+                yPosition += fontSize + (isBold ? 7 : 5);
+            };
+
+            // صفحة الغلاف
+            addText('تقرير تكاليف البناء', 22, true, 105, 'center');
+            addText('________________________________', 12, false, 105, 'center');
+            yPosition += 15;
+
+            // معلومات العميل
+            addText('معلومات العميل:', 16, true);
+            addText(`الاسم: ${result.originalData.customer.name}`);
+            addText(`الهاتف: ${result.originalData.customer.phone}`);
+            addText(`المحافظة: ${result.originalData.location.governorate}`);
+            addText(`المنطقة: ${result.originalData.location.area}`);
+            yPosition += 10;
+
+            // تفاصيل المشروع
+            addText('تفاصيل المشروع:', 16, true);
+            addText(`مساحة الأرض: ${result.originalData.land.area} م²`);
+            addText(`عرض الواجهة: ${result.originalData.land.facadeWidth} م`);
+            addText(`عدد الطوابق: ${result.originalData.building.floors}`);
+            addText(`عدد الغرف: ${result.originalData.building.rooms}`);
+            addText(`عدد الحمامات: ${result.originalData.building.bathrooms}`);
+            yPosition += 10;
+
+            // نتائج الحسابات
+            addText('نتائج الحسابات:', 18, true);
+            doc.setFillColor(240, 240, 240);
+            doc.rect(15, yPosition - 5, 180, 25, 'F');
+            addText(`التكلفة الإجمالية: ${result.calculations.totalCost.toLocaleString('ar-IQ')} دينار`, 16, true);
+            addText(`التكلفة لكل متر مربع: ${result.calculations.costPerSquareMeter.toLocaleString('ar-IQ')} دينار/م²`, 14);
+            addText(`عدد الطوب المطلوب: ${result.calculations.brickCount.toLocaleString('ar-IQ')}`);
+            addText(`حجم الخرسانة: ${result.calculations.concreteVolume.toFixed(2)} م³`);
+            
+            // 6. حفظ الملف
+            const fileName = `تقرير_بناء_${result.originalData.customer.name.replace(/\s+/g, '_')}_${new Date().toISOString().slice(0,10)}.pdf`;
+            doc.save(fileName);
+
+            // 7. عرض النتائج
             const resultContainer = document.getElementById('resultContainer');
             const resultContent = document.getElementById('resultContent');
-            const pdfPreview = document.getElementById('pdfPreview');
             
             resultContent.innerHTML = `
                 <div style="margin-bottom: 20px;">
-                    <p><strong>اسم الزبون:</strong> ${result.customerName}</p>
-                    <p><strong>رقم الهاتف:</strong> ${result.phoneNumber}</p>
-                    <p><strong>المحافظة:</strong> ${result.governorate} - ${result.area}</p>
+                    <p><strong>اسم الزبون:</strong> ${result.originalData.customer.name}</p>
+                    <p><strong>رقم الهاتف:</strong> ${result.originalData.customer.phone}</p>
+                    <p><strong>المحافظة:</strong> ${result.originalData.location.governorate}</p>
                 </div>
                 
                 <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
                     <h4 style="color: var(--primary); margin-bottom: 15px; text-align: center;">
-                        التكلفة الإجمالية المقدرة
+                        التكلفة الإجمالية
                     </h4>
                     <p style="font-size: 1.8rem; color: var(--primary); text-align: center; font-weight: bold;">
-                        ${result.totalCost.toLocaleString('ar-IQ')} دينار عراقي
+                        ${result.calculations.totalCost.toLocaleString('ar-IQ')} دينار
+                    </p>
+                    <p style="text-align: center;">
+                        التكلفة لكل متر مربع: ${result.calculations.costPerSquareMeter.toLocaleString('ar-IQ')} دينار/م²
                     </p>
                 </div>
                 
                 <p style="text-align: center; color: var(--secondary);">
-                    <i class="fas fa-info-circle"></i> تم الحساب بناءً على الأسعار والمواصفات العراقية
+                    <i class="fas fa-check-circle"></i> تم إنشاء ملف PDF بنجاح
                 </p>
             `;
             
-            // عرض معاينة PDF إذا كان متاحاً
-            if (result.pdfUrl) {
-                pdfPreview.src = result.pdfUrl;
-                pdfPreview.style.display = 'block';
-            }
-            
             resultContainer.style.display = 'block';
-            
-            // زر تحميل PDF
-            document.getElementById('downloadPdf').onclick = () => {
-                if (result.pdfUrl) {
-                    window.open(result.pdfUrl, '_blank');
-                }
-            };
-            
-            // التمرير إلى نتيجة الحساب
             resultContainer.scrollIntoView({ behavior: 'smooth' });
+
+        } catch (error) {
+            console.error('Error:', error);
+            alert('حدث خطأ: ' + error.message);
+        } finally {
+            // إعادة زر الإرسال إلى حالته الأصلية
+            submitBtn.innerHTML = originalBtnText;
+            submitBtn.disabled = false;
         }
-    </script>
+    });
+
+    // دالة عرض النتائج (إن وجدت في الكود الأصلي)
+    function showResult(result) {
+        const resultContainer = document.getElementById('resultContainer');
+        const resultContent = document.getElementById('resultContent');
+        const pdfPreview = document.getElementById('pdfPreview');
+        
+        resultContent.innerHTML = `
+            <div style="margin-bottom: 20px;">
+                <p><strong>اسم الزبون:</strong> ${result.customerName}</p>
+                <p><strong>رقم الهاتف:</strong> ${result.phoneNumber}</p>
+                <p><strong>المحافظة:</strong> ${result.governorate} - ${result.area}</p>
+            </div>
+            
+            <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                <h4 style="color: var(--primary); margin-bottom: 15px; text-align: center;">
+                    التكلفة الإجمالية المقدرة
+                </h4>
+                <p style="font-size: 1.8rem; color: var(--primary); text-align: center; font-weight: bold;">
+                    ${result.totalCost.toLocaleString('ar-IQ')} دينار عراقي
+                </p>
+            </div>
+            
+            <p style="text-align: center; color: var(--secondary);">
+                <i class="fas fa-info-circle"></i> تم الحساب بناءً على الأسعار والمواصفات العراقية
+            </p>
+        `;
+        
+        if (result.pdfUrl) {
+            pdfPreview.src = result.pdfUrl;
+            pdfPreview.style.display = 'block';
+        }
+        
+        resultContainer.style.display = 'block';
+        
+        document.getElementById('downloadPdf').onclick = () => {
+            if (result.pdfUrl) {
+                window.open(result.pdfUrl, '_blank');
+            }
+        };
+        
+        resultContainer.scrollIntoView({ behavior: 'smooth' });
+    }
+</script>
 </body>
 </html>
