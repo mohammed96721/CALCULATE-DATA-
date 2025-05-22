@@ -1,11 +1,12 @@
 module.exports = async (req, res) => {
   if (req.method === 'POST') {
     const formData = req.body;
-    console.log('تم استلام البيانات:', formData); // فقط للتأكد من استلام البيانات
+    console.log('تم استلام البيانات:', formData); // للتأكد من استلام البيانات
     
-    // إرجاع نفس البيانات المستلمة بدون تغيير
+    // إرجاع نفس البيانات مع إضافة رسالة نجاح
     res.json({
       success: true,
+      message: "تم استلام البيانات بنجاح",
       originalData: formData
     });
   } else {
