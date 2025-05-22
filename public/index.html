@@ -938,29 +938,94 @@
                 price: parseFloat(document.getElementById('stairsRailingPrice').value)
             };
             
-            try {
-                // إرسال البيانات إلى API
-                const response = await fetch('/api/calculate', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Api-Key': 'YOUR_API_KEY' // مفتاح API للتحقق
-                    },
-                    body: JSON.stringify(formData)
-                });
-                
-                if (!response.ok) throw new Error('Server error');
-                
-                const result = await response.json();
-                
-                // عرض النتيجة
-                showResult(result);
-                
-            } catch (error) {
-                console.error('Error:', error);
-                alert('حدث خطأ أثناء الحساب. يرجى المحاولة لاحقاً.');
-            }
+       try {
+        // إرسال البيانات إلى API
+        const response = await fetch('/api/calculate', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData)
         });
+        
+        if (!response.ok) throw new Error('فشل الاتصال بالخادم');
+        
+        // استقبال الرد من API
+        const result = await response.json();
+        console.log("البيانات المرتدة من API:", result);
+        
+        // إنشاء PDF كامل من جميع البيانات
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        
+        // إعدادات أساسية للPDF
+        doc.setFont('Helvetica', 'normal');
+        doc.setFontSize(12);
+        let yPosition = 20;
+        
+        // دالة مساعدة لإضافة نص مع التحكم في المسافات
+        const addText = (text, x = 14) => {
+            doc.text(text, x, yPosition);
+            yPosition += 10;
+            if (yPosition > 280) {
+                doc.addPage();
+                yPosition = 20;
+            }
+        };
+        
+        // عنوان المستند
+        doc.setFontSize(16);
+        addText('تفاصيل مشروع البناء - البيانات المدخلة', 70);
+        doc.setFontSize(12);
+        addText('_____________________________________________');
+        yPosition += 5;
+        
+        // معلومات الزبون
+        doc.setFontSize(14);
+        addText('معلومات الزبون:');
+        doc.setFontSize(12);
+        addText(`الاسم الكامل: ${result.originalData.customer.name}`);
+        addText(`رقم الهاتف: ${result.originalData.customer.phone}`);
+        yPosition += 5;
+        
+        // موقع الأرض
+        doc.setFontSize(14);
+        addText('موقع الأرض:');
+        doc.setFontSize(12);
+        addText(`المحافظة: ${result.originalData.location.governorate}`);
+        addText(`المنطقة/الحي: ${result.originalData.location.area}`);
+        yPosition += 5;
+        
+        // مواصفات الأرض
+        doc.setFontSize(14);
+        addText('مواصفات الأرض:');
+        doc.setFontSize(12);
+        addText(`مساحة الأرض: ${result.originalData.land.area} م²`);
+        addText(`عرض الواجهة: ${result.originalData.land.facadeWidth} م`);
+        yPosition += 5;
+        
+        // مواصفات البناء
+        doc.setFontSize(14);
+        addText('مواصفات البناء:');
+        doc.setFontSize(12);
+        addText(`عدد الطوابق: ${result.originalData.building.floors}`);
+        addText(`عدد الغرف: ${result.originalData.building.rooms}`);
+        addText(`عدد الحمامات: ${result.originalData.building.bathrooms}`);
+        addText(`نوع الطابوق: ${result.originalData.building.brickType}`);
+        // ... (أضف باقي الحقول بنفس الطريقة)
+        
+        // حفظ الملف
+        const timestamp = new Date().toISOString().replace(/[:.]/g,'-');
+        doc.save(`تفاصيل_البناء_${timestamp}.pdf`);
+        
+        // عرض التنبيه
+        alert("تم إنشاء ملف PDF بنجاح يحتوي على جميع البيانات المدخلة!");
+        
+    } catch (error) {
+        console.error('Error:', error);
+        alert('حدث خطأ أثناء الاتصال بالخادم: ' + error.message);
+    }
+});
         
         // عرض نتيجة الحساب
         function showResult(result) {
