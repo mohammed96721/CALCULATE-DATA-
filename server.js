@@ -1,14 +1,13 @@
 const express = require('express');
 const serverless = require('serverless-http');
-const cors = require('cors'); // أضف هذه السطر
+const cors = require('cors');
 const app = express();
 
-// تمكين CORS
+// Middleware
 app.use(cors());
-
 app.use(express.json());
-app.use(express.static('public'));
 
+// Routes
 app.post('/api/calculate', require('./api/calculate'));
 
 module.exports.handler = serverless(app);
