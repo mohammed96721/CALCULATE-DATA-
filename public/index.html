@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"> 
            <!-- مكتبة jsPDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal&display=swap" rel="stylesheet">
@@ -818,24 +819,24 @@
         });
     }
     
-    // إعداد جميع الأقسام القابلة للطي
+   // إعداد جميع الأقسام القابلة للطي (يبقى كما هو)
     setupToggleSection('toggleConcreteColumns', 'concreteColumnsInfo');
     setupToggleSection('toggleApartments', 'apartmentsInfo');
     setupToggleSection('toggleMapDetails', 'mapDetailsInfo');
     setupToggleSection('toggleInternalWalls', 'internalWallsInfo');
     setupToggleSection('toggleBasement', 'basementInfo');
     
-    // إظهار/إخفاء حقول الطابوق المخصصة
+    // إظهار/إخفاء حقول الطابوق المخصصة (يبقى كما هو)
     document.getElementById('brickType').addEventListener('change', function() {
         document.getElementById('otherBrickInfo').classList.toggle('hidden', this.value !== 'other');
     });
     
-    // إظهار/إخفاء حقول الواجهة المخصصة
+    // إظهار/إخفاء حقول الواجهة المخصصة (يبقى كما هو)
     document.getElementById('facadeType').addEventListener('change', function() {
         document.getElementById('customFacadeInfo').classList.toggle('hidden', this.value !== 'custom');
     });
     
-    // معالجة إرسال النموذج مع دعم كامل للغة العربية
+    // معالجة إرسال النموذج مع تعديل إنشاء PDF
     document.getElementById('buildingForm').addEventListener('submit', async function(e) {
         e.preventDefault();
         
@@ -958,105 +959,13 @@
             // 4. استقبال البيانات المعالجة
             const result = await response.json();
 
-            // 5. إنشاء PDF مع دعم العربية
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF({
-                orientation: 'portrait',
-                unit: 'mm',
-                format: 'a4',
-                compress: true
-            });
-
-            // إعداد الهوامش والإطار
-            const margin = 15;
-            const pageWidth = doc.internal.pageSize.getWidth();
-            const pageHeight = doc.internal.pageSize.getHeight();
-            
-            // رسم إطار للصفحة
-            doc.setDrawColor(100, 100, 100);
-            doc.rect(margin, margin, pageWidth - 2*margin, pageHeight - 2*margin);
-            
-            let yPosition = margin + 10;
-            
-            // تحميل الخط العربي
-            try {
-                // يمكنك استبدال هذا بتحميل الخط من ملف
-                doc.addFont('https://fonts.gstatic.com/s/amiri/v24/J7aRnpd8CGxBHpUrtLMA7w.woff2', 'Amiri', 'normal');
-                doc.setFont('Amiri');
-            } catch (e) {
-                console.error('Failed to load Arabic font:', e);
-                doc.setFont('helvetica');
-            }
-
-            // دالة لكتابة النص العربي
-            const writeArabic = (text, size=12, x=pageWidth-margin, isBold=false) => {
-                doc.setFontSize(size);
-                doc.setFont(isBold ? 'Amiri-Bold' : 'Amiri');
-                const lines = doc.splitTextToSize(text, pageWidth - 2*margin - 20);
-                
-                lines.forEach(line => {
-                    doc.text(line, x, yPosition, {align: 'right'});
-                    yPosition += size/2 + 2;
-                });
-            };
-
-            // عنوان التقرير
-            writeArabic('تقرير تكاليف البناء', 22, pageWidth/2, true);
-            yPosition += 15;
-            
-            // خط فاصل
-            doc.setDrawColor(0, 0, 0);
-            doc.line(margin, yPosition, pageWidth-margin, yPosition);
-            yPosition += 10;
-
-            // معلومات العميل
-            writeArabic('معلومات العميل:', 16, null, true);
-            writeArabic(`الاسم: ${result.originalData.customer.name}`, 14);
-            writeArabic(`الهاتف: ${result.originalData.customer.phone}`, 14);
-            writeArabic(`المحافظة: ${result.originalData.location.governorate}`, 14);
-            writeArabic(`المنطقة: ${result.originalData.location.area}`, 14);
-            yPosition += 15;
-
-            // تفاصيل المشروع
-            writeArabic('تفاصيل المشروع:', 16, null, true);
-            writeArabic(`مساحة الأرض: ${result.originalData.land.area} م²`, 14);
-            writeArabic(`عرض الواجهة: ${result.originalData.land.facadeWidth} م`, 14);
-            writeArabic(`عدد الطوابق: ${result.originalData.building.floors}`, 14);
-            writeArabic(`عدد الغرف: ${result.originalData.building.rooms}`, 14);
-            yPosition += 15;
-
-            // نتائج الحسابات
-            writeArabic('النتائج:', 18, null, true);
-            doc.setFillColor(240, 240, 240);
-            doc.rect(margin, yPosition, pageWidth-2*margin, 25, 'F');
-            
-            writeArabic(`التكلفة الإجمالية: ${result.calculations.totalCost.toLocaleString('ar-EG')} دينار`, 16, null, true);
-            writeArabic(`التكلفة لكل متر مربع: ${result.calculations.costPerSquareMeter.toLocaleString('ar-EG')} دينار/م²`, 14);
-            yPosition += 30;
-
-            // تفاصيل إضافية
-            writeArabic('تفاصيل إضافية:', 16, null, true);
-            writeArabic(`عدد الطوب: ${result.calculations.brickCount.toLocaleString('ar-EG')}`, 14);
-            writeArabic(`حجم الخرسانة: ${result.calculations.concreteVolume.toFixed(2)} م³`, 14);
-            yPosition += 20;
-
-            // تذييل الصفحة
-            doc.setFontSize(10);
-            doc.setTextColor(100, 100, 100);
-            doc.text(`تم إنشاء التقرير في ${new Date().toLocaleDateString('ar-EG')}`, 
-                    pageWidth/2, pageHeight-margin-5, {align: 'center'});
-
-            // 6. حفظ الملف
-            const fileName = `تقرير_بناء_${result.originalData.customer.name.replace(/\s+/g, '_')}.pdf`;
-            doc.save(fileName);
-
-            // 7. عرض النتائج في الصفحة
+             // 5. عرض النتائج في الصفحة أولاً
             const resultContainer = document.getElementById('resultContainer');
             const resultContent = document.getElementById('resultContent');
             
             resultContent.innerHTML = `
-                <div class="result-section">
-                    <h3>نتائج التقرير</h3>
+                <div class="result-section" id="pdfContent">
+                    <h3>تقرير تكاليف البناء</h3>
                     <div class="customer-info">
                         <p><strong>اسم الزبون:</strong> ${result.originalData.customer.name}</p>
                         <p><strong>رقم الهاتف:</strong> ${result.originalData.customer.phone}</p>
@@ -1064,30 +973,29 @@
                     </div>
                     
                     <div class="cost-summary">
-                        <h4>التكلفة الإجمالية</h4>
+                        <h4>النتائج الرئيسية</h4>
                         <p class="total-cost">${result.calculations.totalCost.toLocaleString('ar-EG')} دينار</p>
                         <p>التكلفة لكل متر مربع: ${result.calculations.costPerSquareMeter.toLocaleString('ar-EG')} دينار/م²</p>
                     </div>
                     
                     <div class="details-summary">
                         <div class="detail-item">
-                            <span>عدد الطوب</span>
+                            <span>عدد الطوب:</span>
                             <span>${result.calculations.brickCount.toLocaleString('ar-EG')}</span>
                         </div>
                         <div class="detail-item">
-                            <span>حجم الخرسانة</span>
+                            <span>حجم الخرسانة:</span>
                             <span>${result.calculations.concreteVolume.toFixed(2)} م³</span>
                         </div>
                     </div>
-                    
-                    <p class="success-message">
-                        <i class="fas fa-check-circle"></i> تم إنشاء ملف PDF بنجاح
-                    </p>
                 </div>
             `;
             
             resultContainer.style.display = 'block';
             resultContainer.scrollIntoView({ behavior: 'smooth' });
+
+            // 6. إنشاء PDF من الصفحة بعد عرض النتائج
+            await generatePDFFromHTML();
 
         } catch (error) {
             console.error('Error:', error);
@@ -1097,6 +1005,57 @@
             submitBtn.disabled = false;
         }
     });
+
+    // دالة لإنشاء PDF من محتوى HTML
+    async function generatePDFFromHTML() {
+        // تحميل مكتبات jsPDF و html2canvas ديناميكياً
+        await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
+        await loadScript('https://html2canvas.hertzen.com/dist/html2canvas.min.js');
+        
+        const { jsPDF } = window.jspdf;
+        
+        try {
+            // تحديد العنصر المراد تحويله (يمكن تغييره حسب الحاجة)
+            const element = document.getElementById('pdfContent') || document.body;
+            
+            // استخدام html2canvas لتحويل HTML إلى canvas
+            const canvas = await html2canvas(element, {
+                scale: 2, // زيادة الدقة
+                logging: false,
+                useCORS: true,
+                allowTaint: true
+            });
+            
+            // إنشاء PDF من الصورة
+            const imgData = canvas.toDataURL('image/png');
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            const imgWidth = pdf.internal.pageSize.getWidth();
+            const imgHeight = (canvas.height * imgWidth) / canvas.width;
+            
+            pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+            pdf.save('تقرير_تكاليف_البناء.pdf');
+            
+        } catch (error) {
+            console.error('Error generating PDF:', error);
+            alert('حدث خطأ أثناء إنشاء PDF: ' + error.message);
+        }
+    }
+
+    // دالة مساعدة لتحميل السكربتات ديناميكياً
+    function loadScript(src) {
+        return new Promise((resolve, reject) => {
+            if (document.querySelector(`script[src="${src}"]`)) {
+                resolve();
+                return;
+            }
+            
+            const script = document.createElement('script');
+            script.src = src;
+            script.onload = resolve;
+            script.onerror = reject;
+            document.head.appendChild(script);
+        });
+    }
 </script>
 </body>
 </html>
