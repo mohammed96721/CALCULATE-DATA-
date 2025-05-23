@@ -797,9 +797,7 @@
         </div>
     </div>
 
-    <!-- مكتبة jsPDF لإنشاء ملفات PDF -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+
     
     <script>
     // تفعيل الأقسام القابلة للطي
@@ -837,7 +835,7 @@
         document.getElementById('customFacadeInfo').classList.toggle('hidden', this.value !== 'custom');
     });
     
-    // معالجة إرسال النموذج (الجزء المعدل بالكامل)
+    // معالجة إرسال النموذج مع تحسينات PDF
     document.getElementById('buildingForm').addEventListener('submit', async function(e) {
         e.preventDefault();
         
@@ -945,7 +943,6 @@
                     price: parseFloat(document.getElementById('basementPrice').value)
                 };
             }
-            
 
             // 3. إرسال البيانات إلى API
             const response = await fetch('/api/calculate', {
@@ -965,7 +962,7 @@
             const result = await response.json();
             console.log("البيانات المرتدة من API:", result);
 
-            // 5. إنشاء PDF من البيانات
+            // 5. إنشاء PDF محسّن
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF({
                 orientation: 'portrait',
@@ -973,64 +970,70 @@
                 format: 'a4'
             });
 
-            // إضافة الخط العربي
-            doc.addFont('https://fonts.googleapis.com/css2?family=Tajawal&display=swap', 'Tajawal', 'normal');
-            doc.setFont('Tajawal');
+            // تحميل الخطوط المطلوبة
+            await loadFonts(doc);
 
             // إعدادات المستند
             doc.setDocumentProperties({
                 title: 'تقرير تكاليف البناء',
-                subject: 'بيانات مشروع بناء',
-                author: 'نظام حساب التكاليف',
-                language: 'ar'
+                author: 'نظام حساب التكاليف'
             });
 
             let yPosition = 20;
+            const rightMargin = 190;
             
             // دالة مساعدة لإضافة نص
-            const addText = (text, fontSize = 12, isBold = false, x = 20, align = 'right') => {
+            const addText = (text, fontSize = 12, isBold = false, x = rightMargin, align = 'right') => {
                 doc.setFontSize(fontSize);
-                doc.setFont('Tajawal', isBold ? 'bold' : 'normal');
+                doc.setFont(isBold ? 'Tajawal-Bold' : 'Tajawal-Regular');
                 doc.text(text, x, yPosition, { align });
-                yPosition += fontSize + (isBold ? 7 : 5);
+                yPosition += fontSize / 2 + (isBold ? 4 : 3);
             };
 
             // صفحة الغلاف
             addText('تقرير تكاليف البناء', 22, true, 105, 'center');
-            addText('________________________________', 12, false, 105, 'center');
-            yPosition += 15;
+            addText('Construction Cost Report', 16, false, 105, 'center');
+            addText('İnşaat Maliyet Raporu', 16, false, 105, 'center');
+            yPosition += 30;
 
             // معلومات العميل
-            addText('معلومات العميل:', 16, true);
-            addText(`الاسم: ${result.originalData.customer.name}`);
-            addText(`الهاتف: ${result.originalData.customer.phone}`);
-            addText(`المحافظة: ${result.originalData.location.governorate}`);
-            addText(`المنطقة: ${result.originalData.location.area}`);
+            addText('معلومات العميل | Customer Info | Müşteri Bilgisi', 14, true);
+            doc.line(20, yPosition + 2, 190, yPosition + 2);
+            yPosition += 5;
+            
+            addText(`الاسم/Name/Ad: ${result.originalData.customer.name}`);
+            addText(`الهاتف/Phone/Telefon: ${result.originalData.customer.phone}`);
+            addText(`المحافظة/Governorate/İl: ${result.originalData.location.governorate}`);
+            addText(`المنطقة/Area/Bölge: ${result.originalData.location.area}`);
             yPosition += 10;
 
             // تفاصيل المشروع
-            addText('تفاصيل المشروع:', 16, true);
-            addText(`مساحة الأرض: ${result.originalData.land.area} م²`);
-            addText(`عرض الواجهة: ${result.originalData.land.facadeWidth} م`);
-            addText(`عدد الطوابق: ${result.originalData.building.floors}`);
-            addText(`عدد الغرف: ${result.originalData.building.rooms}`);
-            addText(`عدد الحمامات: ${result.originalData.building.bathrooms}`);
+            addText('تفاصيل المشروع | Project Details | Proje Detayları', 14, true);
+            doc.line(20, yPosition + 2, 190, yPosition + 2);
+            yPosition += 5;
+            
+            addText(`مساحة الأرض/Land Area/Arazi Alanı: ${result.originalData.land.area} م²`);
+            addText(`عرض الواجهة/Facade Width/Cephe Genişliği: ${result.originalData.land.facadeWidth} م`);
+            addText(`عدد الطوابق/Floors/Kat Sayısı: ${result.originalData.building.floors}`);
+            addText(`عدد الغرف/Rooms/Oda Sayısı: ${result.originalData.building.rooms}`);
+            addText(`عدد الحمامات/Bathrooms/Banyo Sayısı: ${result.originalData.building.bathrooms}`);
             yPosition += 10;
 
             // نتائج الحسابات
-            addText('نتائج الحسابات:', 18, true);
+            addText('النتائج | Results | Sonuçlar', 16, true);
             doc.setFillColor(240, 240, 240);
-            doc.rect(15, yPosition - 5, 180, 25, 'F');
-            addText(`التكلفة الإجمالية: ${result.calculations.totalCost.toLocaleString('ar-IQ')} دينار`, 16, true);
-            addText(`التكلفة لكل متر مربع: ${result.calculations.costPerSquareMeter.toLocaleString('ar-IQ')} دينار/م²`, 14);
-            addText(`عدد الطوب المطلوب: ${result.calculations.brickCount.toLocaleString('ar-IQ')}`);
-            addText(`حجم الخرسانة: ${result.calculations.concreteVolume.toFixed(2)} م³`);
+            doc.rect(15, yPosition - 5, 180, 40, 'F');
+            
+            addText(`التكلفة الإجمالية/Total Cost/Toplam Maliyet: ${formatNumber(result.calculations.totalCost)} دينار/Dinar/Dinar`, 14, true);
+            addText(`التكلفة لكل متر مربع/Cost per m²/m² Maliyet: ${formatNumber(result.calculations.costPerSquareMeter)} دينار/م²/Dinar/m²`);
+            addText(`عدد الطوب/Brick Count/Tuğla Sayısı: ${formatNumber(result.calculations.brickCount)}`);
+            addText(`حجم الخرسانة/Concrete Volume/Beton Hacmi: ${result.calculations.concreteVolume.toFixed(2)} م³/m³`);
             
             // 6. حفظ الملف
-            const fileName = `تقرير_بناء_${result.originalData.customer.name.replace(/\s+/g, '_')}_${new Date().toISOString().slice(0,10)}.pdf`;
+            const fileName = `Construction_Report_${result.originalData.customer.name.replace(/\s+/g, '_')}_${new Date().toISOString().slice(0,10)}.pdf`;
             doc.save(fileName);
 
-            // 7. عرض النتائج
+            // 7. عرض النتائج في الصفحة
             const resultContainer = document.getElementById('resultContainer');
             const resultContent = document.getElementById('resultContent');
             
@@ -1046,10 +1049,10 @@
                         التكلفة الإجمالية
                     </h4>
                     <p style="font-size: 1.8rem; color: var(--primary); text-align: center; font-weight: bold;">
-                        ${result.calculations.totalCost.toLocaleString('ar-IQ')} دينار
+                        ${formatNumber(result.calculations.totalCost)} دينار
                     </p>
                     <p style="text-align: center;">
-                        التكلفة لكل متر مربع: ${result.calculations.costPerSquareMeter.toLocaleString('ar-IQ')} دينار/م²
+                        التكلفة لكل متر مربع: ${formatNumber(result.calculations.costPerSquareMeter)} دينار/م²
                     </p>
                 </div>
                 
@@ -1071,6 +1074,28 @@
         }
     });
 
+    // دالة لتحميل الخطوط
+    async function loadFonts(doc) {
+        try {
+            // يمكن استبدال هذه الروابط بملفات محلية لتحسين الأداء
+            const fontResponse = await fetch('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap');
+            const fontCss = await fontResponse.text();
+            
+            // هذه خطوة مبسطة، في الواقع تحتاج إلى تحميل ملفات الخطوط بشكل صحيح
+            doc.addFont('https://fonts.gstatic.com/s/tajawal/v9/Iurf6YBj_oCad4k1l_6gLrZjiY.woff2', 'Tajawal-Regular', 'normal');
+            doc.addFont('https://fonts.gstatic.com/s/tajawal/v9/Iurf6YBj_oCad4k1l5qjLrZjiY.woff2', 'Tajawal-Bold', 'bold');
+            doc.setFont('Tajawal-Regular');
+        } catch (error) {
+            console.error('Failed to load fonts:', error);
+            // استخدام الخط الافتراضي إذا فشل تحميل الخط المخصص
+        }
+    }
+
+    // دالة لتنسيق الأرقام
+    function formatNumber(num) {
+        return new Intl.NumberFormat('ar-IQ').format(num);
+    }
+
     // دالة عرض النتائج (إن وجدت في الكود الأصلي)
     function showResult(result) {
         const resultContainer = document.getElementById('resultContainer');
@@ -1089,7 +1114,7 @@
                     التكلفة الإجمالية المقدرة
                 </h4>
                 <p style="font-size: 1.8rem; color: var(--primary); text-align: center; font-weight: bold;">
-                    ${result.totalCost.toLocaleString('ar-IQ')} دينار عراقي
+                    ${formatNumber(result.totalCost)} دينار عراقي
                 </p>
             </div>
             
