@@ -503,29 +503,6 @@
                 <div class="form-section">
                     <h3><i class="fas fa-tools"></i> خيارات إضافية</h3>
                     
-                    <!-- تم نقل هذه الأقسام إلى هنا كما طلبت -->
-                    <div class="toggle-section" id="toggleConcreteColumns">
-                        <span><i class="fas fa-columns"></i> أعمدة أو تكتلات كونكريت مسلحة</span>
-                        <span class="toggle-icon"><i class="fas fa-plus"></i></span>
-                    </div>
-                    <div id="concreteColumnsInfo" class="toggle-content hidden">
-                        <div class="form-group">
-                            <label for="concreteVolume"><i class="fas fa-cubes"></i> حجم الكونكريت المسلح (م³)</label>
-                            <input type="number" id="concreteVolume" class="form-control" min="0" step="0.1">
-                        </div>
-                    </div>
-                    
-                    <div class="toggle-section" id="toggleApartments">
-                        <span><i class="fas fa-building"></i> شقق سكنية</span>
-                        <span class="toggle-icon"><i class="fas fa-plus"></i></span>
-                    </div>
-                    <div id="apartmentsInfo" class="toggle-content hidden">
-                        <div class="form-group">
-                            <label for="apartmentsCount"><i class="fas fa-home"></i> عدد الشقق السكنية</label>
-                            <input type="number" id="apartmentsCount" class="form-control" min="0">
-                        </div>
-                    </div>
-                    
                     <div class="form-row">
                         <div class="form-col">
                             <div class="form-group">
@@ -566,49 +543,31 @@
                         </div>
                     </div>
                 </div>
-                
-                <!-- المرافق -->
-                <div class="form-section">
-                    <h3><i class="fas fa-home-heart"></i> المرافق</h3>
-                    <div class="form-row">
-                        <div class="form-col">
-                            <div class="checkbox-group">
-                                <input type="checkbox" id="hasGarden">
-                                <label for="hasGarden"><i class="fas fa-tree"></i> حديقة داخلية</label>
-                            </div>
-                        </div>
-                        <div class="form-col">
-                            <div class="checkbox-group">
-                                <input type="checkbox" id="hasPool">
-                                <label for="hasPool"><i class="fas fa-swimming-pool"></i> مسبح</label>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-col">
-                            <div class="checkbox-group">
-                                <input type="checkbox" id="hasHVAC">
-                                <label for="hasHVAC"><i class="fas fa-fan"></i> تدفئة وتبريد مركزي</label>
-                            </div>
-                        </div>
-                        <div class="form-col">
-                            <div class="checkbox-group">
-                                <input type="checkbox" id="hasElevator">
-                                <label for="hasElevator"><i class="fas fa-elevator"></i> مصعد</label>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-col">
-                            <div class="checkbox-group">
-                                <input type="checkbox" id="hasFence">
-                                <label for="hasFence"><i class="fas fa-fence"></i> سياج خارجي</label>
-                            </div>
-                        </div>
+
+                <!-- الأقسام المنقولة هنا -->
+                <div class="toggle-section" id="toggleConcreteColumns">
+                    <span><i class="fas fa-columns"></i> أعمدة أو تكتلات كونكريت مسلحة</span>
+                    <span class="toggle-icon"><i class="fas fa-plus"></i></span>
+                </div>
+                <div id="concreteColumnsInfo" class="toggle-content hidden">
+                    <div class="form-group">
+                        <label for="concreteVolume"><i class="fas fa-cubes"></i> حجم الكونكريت المسلح (م³)</label>
+                        <input type="number" id="concreteVolume" class="form-control" min="0" step="0.1">
                     </div>
                 </div>
-                
-                <!-- الجدران الداخلية والطوابق السفلية -->
+
+                <div class="toggle-section" id="toggleApartments">
+                    <span><i class="fas fa-building"></i> شقق سكنية</span>
+                    <span class="toggle-icon"><i class="fas fa-plus"></i></span>
+                </div>
+                <div id="apartmentsInfo" class="toggle-content hidden">
+                    <div class="form-group">
+                        <label for="apartmentsCount"><i class="fas fa-home"></i> عدد الشقق السكنية</label>
+                        <input type="number" id="apartmentsCount" class="form-control" min="0">
+                    </div>
+                </div>
+
+                <!-- جدران قطع داخلي في كل المنشأة -->
                 <div class="toggle-section" id="toggleInternalWalls">
                     <span><i class="fas fa-border-none"></i> جدران قطع داخلي في كل المنشأة</span>
                     <span class="toggle-icon"><i class="fas fa-plus"></i></span>
@@ -630,6 +589,7 @@
                     </div>
                 </div>
                 
+                <!-- طوابق سفلية أو كراجات -->
                 <div class="toggle-section" id="toggleBasement">
                     <span><i class="fas fa-warehouse"></i> طوابق سفلية أو كراجات</span>
                     <span class="toggle-icon"><i class="fas fa-plus"></i></span>
