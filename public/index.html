@@ -967,75 +967,87 @@
                 compress: true
             });
 
-            // حل متقدم للخطوط العربية
-            await loadArabicFont(doc);
-            
-            let yPosition = 20;
-            const rightMargin = 190;
+            // إعداد الهوامش والإطار
+            const margin = 15;
             const pageWidth = doc.internal.pageSize.getWidth();
+            const pageHeight = doc.internal.pageSize.getHeight();
             
-            // دالة مساعدة محسنة للنص العربي
-            const addArabicText = (text, fontSize = 12, isBold = false, x = rightMargin, align = 'right') => {
-                try {
-                    doc.setFontSize(fontSize);
-                    doc.setFont('arabic', isBold ? 'bold' : 'normal');
-                    
-                    // تقسيم النص الطويل إلى أسطر
-                    const splitText = doc.splitTextToSize(text, pageWidth - 40);
-                    
-                    splitText.forEach((line) => {
-                        doc.text(line, x, yPosition, { align });
-                        yPosition += fontSize / 2 + 2;
-                    });
-                    
-                    return splitText.length;
-                } catch (err) {
-                    console.error('Error in addArabicText:', err);
-                    doc.setFont('helvetica');
-                    doc.text(text, x, yPosition, { align });
-                    yPosition += 10;
-                    return 1;
-                }
+            // رسم إطار للصفحة
+            doc.setDrawColor(100, 100, 100);
+            doc.rect(margin, margin, pageWidth - 2*margin, pageHeight - 2*margin);
+            
+            let yPosition = margin + 10;
+            
+            // تحميل الخط العربي
+            try {
+                // يمكنك استبدال هذا بتحميل الخط من ملف
+                doc.addFont('https://fonts.gstatic.com/s/amiri/v24/J7aRnpd8CGxBHpUrtLMA7w.woff2', 'Amiri', 'normal');
+                doc.setFont('Amiri');
+            } catch (e) {
+                console.error('Failed to load Arabic font:', e);
+                doc.setFont('helvetica');
+            }
+
+            // دالة لكتابة النص العربي
+            const writeArabic = (text, size=12, x=pageWidth-margin, isBold=false) => {
+                doc.setFontSize(size);
+                doc.setFont(isBold ? 'Amiri-Bold' : 'Amiri');
+                const lines = doc.splitTextToSize(text, pageWidth - 2*margin - 20);
+                
+                lines.forEach(line => {
+                    doc.text(line, x, yPosition, {align: 'right'});
+                    yPosition += size/2 + 2;
+                });
             };
 
-            // صفحة الغلاف
-            addArabicText('تقرير تكاليف البناء', 22, true, pageWidth / 2, 'center');
-            yPosition += 20;
+            // عنوان التقرير
+            writeArabic('تقرير تكاليف البناء', 22, pageWidth/2, true);
+            yPosition += 15;
+            
+            // خط فاصل
+            doc.setDrawColor(0, 0, 0);
+            doc.line(margin, yPosition, pageWidth-margin, yPosition);
+            yPosition += 10;
 
             // معلومات العميل
-            addArabicText('معلومات العميل:', 16, true);
-            addArabicText(`الاسم: ${result.originalData.customer.name}`);
-            addArabicText(`الهاتف: ${result.originalData.customer.phone}`);
-            addArabicText(`المحافظة: ${result.originalData.location.governorate}`);
-            addArabicText(`المنطقة: ${result.originalData.location.area}`);
+            writeArabic('معلومات العميل:', 16, null, true);
+            writeArabic(`الاسم: ${result.originalData.customer.name}`, 14);
+            writeArabic(`الهاتف: ${result.originalData.customer.phone}`, 14);
+            writeArabic(`المحافظة: ${result.originalData.location.governorate}`, 14);
+            writeArabic(`المنطقة: ${result.originalData.location.area}`, 14);
             yPosition += 15;
 
-            // تفاصيل الأرض
-            addArabicText('تفاصيل الأرض:', 16, true);
-            addArabicText(`مساحة الأرض: ${result.originalData.land.area} م²`);
-            addArabicText(`عرض الواجهة: ${result.originalData.land.facadeWidth} م`);
-            yPosition += 15;
-
-            // تفاصيل البناء
-            addArabicText('تفاصيل البناء:', 16, true);
-            addArabicText(`عدد الطوابق: ${result.originalData.building.floors}`);
-            addArabicText(`عدد الغرف: ${result.originalData.building.rooms}`);
-            addArabicText(`عدد الحمامات: ${result.originalData.building.bathrooms}`);
+            // تفاصيل المشروع
+            writeArabic('تفاصيل المشروع:', 16, null, true);
+            writeArabic(`مساحة الأرض: ${result.originalData.land.area} م²`, 14);
+            writeArabic(`عرض الواجهة: ${result.originalData.land.facadeWidth} م`, 14);
+            writeArabic(`عدد الطوابق: ${result.originalData.building.floors}`, 14);
+            writeArabic(`عدد الغرف: ${result.originalData.building.rooms}`, 14);
             yPosition += 15;
 
             // نتائج الحسابات
-            addArabicText('نتائج الحسابات:', 18, true);
+            writeArabic('النتائج:', 18, null, true);
             doc.setFillColor(240, 240, 240);
-            doc.rect(15, yPosition - 5, 180, 40, 'F');
+            doc.rect(margin, yPosition, pageWidth-2*margin, 25, 'F');
             
-            addArabicText(`التكلفة الإجمالية: ${result.calculations.totalCost.toLocaleString('ar-EG')} دينار`, 16, true);
-            addArabicText(`التكلفة لكل متر مربع: ${result.calculations.costPerSquareMeter.toLocaleString('ar-EG')} دينار/م²`, 14);
-            addArabicText(`عدد الطوب المطلوب: ${result.calculations.brickCount.toLocaleString('ar-EG')}`);
-            addArabicText(`حجم الخرسانة: ${result.calculations.concreteVolume.toFixed(2)} م³`);
-            yPosition += 25;
+            writeArabic(`التكلفة الإجمالية: ${result.calculations.totalCost.toLocaleString('ar-EG')} دينار`, 16, null, true);
+            writeArabic(`التكلفة لكل متر مربع: ${result.calculations.costPerSquareMeter.toLocaleString('ar-EG')} دينار/م²`, 14);
+            yPosition += 30;
+
+            // تفاصيل إضافية
+            writeArabic('تفاصيل إضافية:', 16, null, true);
+            writeArabic(`عدد الطوب: ${result.calculations.brickCount.toLocaleString('ar-EG')}`, 14);
+            writeArabic(`حجم الخرسانة: ${result.calculations.concreteVolume.toFixed(2)} م³`, 14);
+            yPosition += 20;
+
+            // تذييل الصفحة
+            doc.setFontSize(10);
+            doc.setTextColor(100, 100, 100);
+            doc.text(`تم إنشاء التقرير في ${new Date().toLocaleDateString('ar-EG')}`, 
+                    pageWidth/2, pageHeight-margin-5, {align: 'center'});
 
             // 6. حفظ الملف
-            const fileName = `تقرير_بناء_${result.originalData.customer.name.replace(/\s+/g, '_')}_${new Date().toISOString().slice(0,10)}.pdf`;
+            const fileName = `تقرير_بناء_${result.originalData.customer.name.replace(/\s+/g, '_')}.pdf`;
             doc.save(fileName);
 
             // 7. عرض النتائج في الصفحة
@@ -1085,36 +1097,6 @@
             submitBtn.disabled = false;
         }
     });
-
-    // دالة لتحميل الخط العربي
-    async function loadArabicFont(doc) {
-        try {
-            // استخدام خط عربي افتراضي (يمكن استبداله بملف خط خاص بك)
-            const arabicFont = '...'; // هنا يجب وضع محتوى ملف الخط العربي بصيغة base64
-            
-            doc.addFileToVFS('arabic-normal.ttf', arabicFont);
-            doc.addFont('arabic-normal.ttf', 'arabic', 'normal');
-            doc.setFont('arabic');
-            
-            // للخط الغامق (اختياري)
-            const arabicFontBold = '...'; // محتوى ملف الخط الغامق
-            doc.addFileToVFS('arabic-bold.ttf', arabicFontBold);
-            doc.addFont('arabic-bold.ttf', 'arabic', 'bold');
-        } catch (error) {
-            console.error('Failed to load Arabic font:', error);
-            doc.setFont('helvetica');
-        }
-    }
-
-    // دالة مساعدة لتحويل ArrayBuffer إلى base64
-    function arrayBufferToBase64(buffer) {
-        let binary = '';
-        const bytes = new Uint8Array(buffer);
-        for (let i = 0; i < bytes.byteLength; i++) {
-            binary += String.fromCharCode(bytes[i]);
-        }
-        return window.btoa(binary);
-    }
 </script>
 </body>
 </html>
