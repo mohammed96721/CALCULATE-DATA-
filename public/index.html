@@ -35,6 +35,20 @@
             padding: 20px;
         }
 
+        .language-selector {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .language-selector select {
+            padding: 10px;
+            font-size: 1rem;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            background-color: white;
+            cursor: pointer;
+        }
+
         .disclaimer {
             background-color: #fff8e1;
             border-right: 5px solid var(--gold);
@@ -263,6 +277,13 @@
 </head>
 <body>
     <div class="container">
+        <!-- زر اختيار اللغة (عربية فقط) -->
+        <div class="language-selector">
+            <select id="languageSelect" class="form-control">
+                <option value="ar">العربية</option>
+            </select>
+        </div>
+
         <div class="disclaimer">
             <h2><i class="fas fa-exclamation-triangle"></i> تنبيه قانوني هام</h2>
             <p>هذه الأداة صممت لتتوافق مع الأسعار والمواصفات العراقية فقط وهي مخصصة لخدمة الزبائن الأفراد فقط. 
@@ -496,6 +517,7 @@
                 <div class="form-section">
                     <h3><i class="fas fa-tools"></i> خيارات إضافية</h3>
 
+                    <!-- أعمدة كونكريت -->
                     <div class="toggle-section" id="toggleConcreteColumns">
                         <span><i class="fas fa-columns"></i> أعمدة أو تكتلات كونكريت مسلحة</span>
                         <span class="toggle-icon"><i class="fas fa-plus"></i></span>
@@ -507,6 +529,7 @@
                         </div>
                     </div>
 
+                    <!-- شقق سكنية -->
                     <div class="toggle-section" id="toggleApartments">
                         <span><i class="fas fa-building"></i> شقق سكنية</span>
                         <span class="toggle-icon"><i class="fas fa-plus"></i></span>
@@ -557,6 +580,55 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- جدران قطع داخلي -->
+                    <div class="toggle-section" id="toggleInternalWalls">
+                        <span><i class="fas fa-border-none"></i> جدران قطع داخلي في كل المنشأة</span>
+                        <span class="toggle-icon"><i class="fas fa-plus"></i></span>
+                    </div>
+                    <div id="internalWallsInfo" class="toggle-content hidden">
+                        <div class="form-row">
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label for="internalWallsArea"><i class="fas fa-ruler-combined"></i> مساحة الجدران الداخلية (م²)</label>
+                                    <input type="number" id="internalWallsArea" class="form-control" min="0" step="0.1">
+                                </div>
+                            </div>
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label for="internalWallsPrice"><i class="fas fa-money-bill"></i> سعر م² الجدران الداخلية</label>
+                                    <input type="number" id="internalWallsPrice" class="form-control" min="0">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="toggle-section" id="toggleBasement">
+                        <span><i class="fas fa-warehouse"></i> طوابق سفلية أو كراجات</span>
+                        <span class="toggle-icon"><i class="fas fa-plus"></i></span>
+                    </div>
+                    <div id="basementInfo" class="toggle-content hidden">
+                        <div class="form-row">
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label for="basementFloors"><i class="fas fa-layer-group"></i> عدد الطوابق السفلية</label>
+                                    <input type="number" id="basementFloors" class="form-control" min="0">
+                                </div>
+                            </div>
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label for="basementCeilingArea"><i class="fas fa-vector-square"></i> مساحة السقوف مجتمعة (م²)</label>
+                                    <input type="number" id="basementCeilingArea" class="form-control" min="0" step="0.1">
+                                </div>
+                            </div>
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label for="basementPrice"><i class="fas fa-money-bill"></i> سعر م² الطوابق السفلية</label>
+                                    <input type="number" id="basementPrice" class="form-control" min="0">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- المرافق -->
@@ -600,169 +672,122 @@
                     </div>
                 </div>
 
-                <!-- الجدران الداخلية والطوابق السفلية -->
-                <div class="toggle-section" id="toggleInternalWalls">
-                    <span><i class="fas fa-border-none"></i> جدران قطع داخلي في كل المنشأة</span>
-                    <span class="toggle-icon"><i class="fas fa-plus"></i></span>
-                </div>
-                <div id="internalWallsInfo" class="toggle-content hidden">
-                    <div class="form-row">
-                        <div class="form-col">
-                            <div class="form-group">
-                                <label for="internalWallsArea"><i class="fas fa-ruler-combined"></i> مساحة الجدران الداخلية (م²)</label>
-                                <input type="number" id="internalWallsArea" class="form-control" min="0" step="0.1">
-                            </div>
-                        </div>
-                        <div class="form-col">
-                            <div class="form-group">
-                                <label for="internalWallsPrice"><i class="fas fa-money-bill"></i> سعر م² الجدران الداخلية</label>
-                                <input type="number" id="internalWallsPrice" class="form-control" min="0">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="toggle-section" id="toggleBasement">
-                    <span><i class="fas fa-warehouse"></i> طوابق سفلية أو كراجات</span>
-                    <span class="toggle-icon"><i class="fas fa-plus"></i></span>
-                </div>
-                <div id="basementInfo" class="toggle-content hidden">
-                    <div class="form-row">
-                        <div class="form-col">
-                            <div class="form-group">
-                                <label for="basementFloors"><i class="fas fa-layer-group"></i> عدد الطوابق السفلية</label>
-                                <input type="number" id="basementFloors" class="form-control" min="0">
-                            </div>
-                        </div>
-                        <div class="form-col">
-                            <div class="form-group">
-                                <label for="basementCeilingArea"><i class="fas fa-vector-square"></i> مساحة السقوف مجتمعة (م²)</label>
-                                <input type="number" id="basementCeilingArea" class="form-control" min="0" step="0.1">
-                            </div>
-                        </div>
-                        <div class="form-col">
-                            <div class="form-group">
-                                <label for="basementPrice"><i class="fas fa-money-bill"></i> سعر م² الطوابق السفلية</label>
-                                <input type="number" id="basementPrice" class="form-control" min="0">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
                 <!-- الخريطة والتفاصيل الفنية -->
-                <div class="toggle-section" id="toggleMapDetails">
-                    <span><i class="fas fa-map"></i> هل لديك خريطة للمشروع؟ (إظهار التفاصيل الفنية)</span>
-                    <span class="toggle-icon"><i class="fas fa-plus"></i></span>
-                </div>
-                <div id="mapDetailsInfo" class="toggle-content hidden">
-                    <div class="form-row">
-                        <div class="form-col">
-                            <div class="form-group">
-                                <label for="totalRoofArea"><i class="fas fa-vector-square"></i> مجموع مساحة السقوف الحقيقية (م²)</label>
-                                <input type="number" id="totalRoofArea" class="form-control" min="0" step="0.1">
-                            </div>
-                        </div>
-                        <div class="form-col">
-                            <div class="form-group">
-                                <label for="externalAreas"><i class="fas fa-tree"></i> مساحة الحديقة الخارجية والكراج والممرات (م²)</label>
-                                <input type="number" id="externalAreas" class="form-control" min="0" step="0.1">
-                            </div>
-                        </div>
+                <div class="form-section">
+                    <div class="toggle-section" id="toggleMapDetails">
+                        <span><i class="fas fa-map"></i> هل لديك خريطة للمشروع؟ (إظهار التفاصيل الفنية)</span>
+                        <span class="toggle-icon"><i class="fas fa-plus"></i></span>
                     </div>
+                    <div id="mapDetailsInfo" class="toggle-content hidden">
+                        <div class="form-row">
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label for="totalRoofArea"><i class="fas fa-vector-square"></i> مجموع مساحة السقوف الحقيقية (م²)</label>
+                                    <input type="number" id="totalRoofArea" class="form-control" min="0" step="0.1">
+                                </div>
+                            </div>
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label for="externalAreas"><i class="fas fa-tree"></i> مساحة الحديقة الخارجية والكراج والممرات (م²)</label>
+                                    <input type="number" id="externalAreas" class="form-control" min="0" step="0.1">
+                                </div>
+                            </div>
+                        </div>
 
-                    <div class="form-row">
-                        <div class="form-col">
-                            <div class="form-group">
-                                <label for="skylightsArea"><i class="fas fa-sun"></i> مجموع مساحة المناور (م²)</label>
-                                <input type="number" id="skylightsArea" class="form-control" min="0" step="0.1">
+                        <div class="form-row">
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label for="skylightsArea"><i class="fas fa-sun"></i> مجموع مساحة المناور (م²)</label>
+                                    <input type="number" id="skylightsArea" class="form-control" min="0" step="0.1">
+                                </div>
+                            </div>
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label for="tiesLength"><i class="fas fa-link"></i> مجموع طول الرباطات (م)</label>
+                                    <input type="number" id="tiesLength" class="form-control" min="0" step="0.1">
+                                </div>
                             </div>
                         </div>
-                        <div class="form-col">
-                            <div class="form-group">
-                                <label for="tiesLength"><i class="fas fa-link"></i> مجموع طول الرباطات (م)</label>
-                                <input type="number" id="tiesLength" class="form-control" min="0" step="0.1">
-                            </div>
-                        </div>
-                    </div>
 
-                    <div class="form-row">
-                        <div class="form-col">
-                            <div class="form-group">
-                                <label for="invertedBeams"><i class="fas fa-grip-lines"></i> مجموع طول الجسور المقلوبة (م)</label>
-                                <input type="number" id="invertedBeams" class="form-control" min="0" step="0.1">
+                        <div class="form-row">
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label for="invertedBeams"><i class="fas fa-grip-lines"></i> مجموع طول الجسور المقلوبة (م)</label>
+                                    <input type="number" id="invertedBeams" class="form-control" min="0" step="0.1">
+                                </div>
+                            </div>
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label for="externalWalls24cm"><i class="fas fa-wall"></i> مجموع أطوال الجدران الخارجية 24سم لكل طابق (م)</label>
+                                    <input type="number" id="externalWalls24cm" class="form-control" min="0" step="0.1">
+                                </div>
                             </div>
                         </div>
-                        <div class="form-col">
-                            <div class="form-group">
-                                <label for="externalWalls24cm"><i class="fas fa-wall"></i> مجموع أطول الجدران الخارجية 24سم لكل طابق (م)</label>
-                                <input type="number" id="externalWalls24cm" class="form-control" min="0" step="0.1">
-                            </div>
-                        </div>
-                    </div>
 
-                    <div class="form-row">
-                        <div class="form-col">
-                            <div class="form-group">
-                                <label for="internalWalls24cm"><i class="fas fa-border-style"></i> مجموع أطول الجدران الداخلية 24سم لكل طابق (م)</label>
-                                <input type="number" id="internalWalls24cm" class="form-control" min="0" step="0.1">
+                        <div class="form-row">
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label for="internalWalls24cm"><i class="fas fa-border-style"></i> مجموع أطوال الجدران الداخلية 24سم لكل طابق (م)</label>
+                                    <input type="number" id="internalWalls24cm" class="form-control" min="0" step="0.1">
+                                </div>
+                            </div>
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label for="roofFenceLength"><i class="fas fa-border-all"></i> طول ستارة السطح والسياج الخارجي (م)</label>
+                                    <input type="number" id="roofFenceLength" class="form-control" min="0" step="0.1">
+                                </div>
                             </div>
                         </div>
-                        <div class="form-col">
-                            <div class="form-group">
-                                <label for="roofFenceLength"><i class="fas fa-border-all"></i> طول ستارة السطح والسياج الخارجي (م)</label>
-                                <input type="number" id="roofFenceLength" class="form-control" min="0" step="0.1">
-                            </div>
-                        </div>
-                    </div>
 
-                    <div class="form-row">
-                        <div class="form-col">
-                            <div class="form-group">
-                                <label for="externalDoors"><i class="fas fa-door-open"></i> عدد الأبواب الخارجية</label>
-                                <input type="number" id="externalDoors" class="form-control" min="0">
+                        <div class="form-row">
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label for="externalDoors"><i class="fas fa-door-open"></i> عدد الأبواب الخارجية</label>
+                                    <input type="number" id="externalDoors" class="form-control" min="0">
+                                </div>
+                            </div>
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label for="internalDoors"><i class="fas fa-door-closed"></i> عدد الأبواب الداخلية</label>
+                                    <input type="number" id="internalDoors" class="form-control" min="0">
+                                </div>
                             </div>
                         </div>
-                        <div class="form-col">
-                            <div class="form-group">
-                                <label for="internalDoors"><i class="fas fa-door-closed"></i> عدد الأبواب الداخلية</label>
-                                <input type="number" id="internalDoors" class="form-control" min="0">
-                            </div>
-                        </div>
-                    </div>
 
-                    <div class="form-row">
-                        <div class="form-col">
-                            <div class="form-group">
-                                <label for="facadeWindowsDoorsArea"><i class="fas fa-window-maximize"></i> مجموع مساحة شبابيك وأبواب الواجهة (م²)</label>
-                                <input type="number" id="facadeWindowsDoorsArea" class="form-control" min="0" step="0.1">
+                        <div class="form-row">
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label for="facadeWindowsDoorsArea"><i class="fas fa-window-maximize"></i> مجموع مساحة شبابيك وأبواب الواجهة (م²)</label>
+                                    <input type="number" id="facadeWindowsDoorsArea" class="form-control" min="0" step="0.1">
+                                </div>
+                            </div>
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label for="skylightWindowsDoorsArea"><i class="fas fa-window-restore"></i> مجموع مساحة شبابيك وأبواب المناور (م²)</label>
+                                    <input type="number" id="skylightWindowsDoorsArea" class="form-control" min="0" step="0.1">
+                                </div>
                             </div>
                         </div>
-                        <div class="form-col">
-                            <div class="form-group">
-                                <label for="skylightWindowsDoorsArea"><i class="fas fa-window-restore"></i> مجموع مساحة شبابيك وأبواب المناور (م²)</label>
-                                <input type="number" id="skylightWindowsDoorsArea" class="form-control" min="0" step="0.1">
-                            </div>
-                        </div>
-                    </div>
 
-                    <div class="form-row">
-                        <div class="form-col">
-                            <div class="form-group">
-                                <label for="secondaryCeilingsArea"><i class="fas fa-layer-group"></i> مساحة السقوف الثانوية (م²)</label>
-                                <input type="number" id="secondaryCeilingsArea" class="form-control" min="0" step="0.1">
+                        <div class="form-row">
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label for="secondaryCeilingsArea"><i class="fas fa-layer-group"></i> مساحة السقوف الثانوية (م²)</label>
+                                    <input type="number" id="secondaryCeilingsArea" class="form-control" min="0" step="0.1">
+                                </div>
+                            </div>
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label for="decorativeWallsArea"><i class="fas fa-paint-brush"></i> مساحة الجدران الديكورية (م²)</label>
+                                    <input type="number" id="decorativeWallsArea" class="form-control" min="0" step="0.1">
+                                </div>
                             </div>
                         </div>
-                        <div class="form-col">
-                            <div class="form-group">
-                                <label for="decorativeWallsArea"><i class="fas fa-paint-brush"></i> مساحة الجدران الديكورية (م²)</label>
-                                <input type="number" id="decorativeWallsArea" class="form-control" min="0" step="0.1">
-                            </div>
-                        </div>
-                    </div>
 
-                    <div class="form-group">
-                        <label for="claddingWallsArea"><i class="fas fa-vector-square"></i> مجموع مساحة الجدران التغليف (م²)</label>
-                        <input type="number" id="claddingWallsArea" class="form-control" min="0" step="0.1">
+                        <div class="form-group">
+                            <label for="claddingWallsArea"><i class="fas fa-vector-square"></i> مجموع مساحة الجدران التغليف (م²)</label>
+                            <input type="number" id="claddingWallsArea" class="form-control" min="0" step="0.1">
+                        </div>
                     </div>
                 </div>
 
@@ -811,9 +836,9 @@
 
         setupToggleSection('toggleConcreteColumns', 'concreteColumnsInfo');
         setupToggleSection('toggleApartments', 'apartmentsInfo');
-        setupToggleSection('toggleMapDetails', 'mapDetailsInfo');
         setupToggleSection('toggleInternalWalls', 'internalWallsInfo');
         setupToggleSection('toggleBasement', 'basementInfo');
+        setupToggleSection('toggleMapDetails', 'mapDetailsInfo');
 
         // إظهار/إخفاء حقول الطابوق المخصصة
         document.getElementById('brickType').addEventListener('change', function() {
@@ -831,12 +856,12 @@
 
             const submitBtn = e.target.querySelector('button[type="submit"]');
             const originalBtnText = submitBtn.innerHTML;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحساب...';
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> حساب التكلفة';
             submitBtn.disabled = true;
 
             try {
                 // جمع البيانات من النموذج
-                const formData = {
+                const inputs = {
                     customer: {
                         name: document.getElementById('customerName').value || '',
                         phone: document.getElementById('phoneNumber').value || ''
@@ -877,7 +902,7 @@
 
                 // إضافة الحقول الاختيارية
                 if (!document.getElementById('otherBrickInfo').classList.contains('hidden')) {
-                    formData.building.brickDetails = {
+                    inputs.building.brickDetails = {
                         width: parseFloat(document.getElementById('brickWidth').value) || 0,
                         length: parseFloat(document.getElementById('brickLength').value) || 0,
                         height: parseFloat(document.getElementById('brickHeight').value) || 0,
@@ -885,32 +910,32 @@
                     };
                 }
                 if (!document.getElementById('concreteColumnsInfo').classList.contains('hidden')) {
-                    formData.building.concreteVolume = parseFloat(document.getElementById('concreteVolume').value) || 0;
+                    inputs.building.concreteVolume = parseFloat(document.getElementById('concreteVolume').value) || 0;
                 }
                 if (!document.getElementById('apartmentsInfo').classList.contains('hidden')) {
-                    formData.building.apartmentsCount = parseInt(document.getElementById('apartmentsCount').value) || 0;
+                    inputs.building.apartmentsCount = parseInt(document.getElementById('apartmentsCount').value) || 0;
                 }
                 if (!document.getElementById('customFacadeInfo').classList.contains('hidden')) {
-                    formData.building.customFacade = {
+                    inputs.building.customFacade = {
                         area: parseFloat(document.getElementById('facadeArea').value) || 0,
                         price: parseFloat(document.getElementById('facadePrice').value) || 0
                     };
                 }
                 if (!document.getElementById('internalWallsInfo').classList.contains('hidden')) {
-                    formData.building.internalWalls = {
+                    inputs.building.internalWalls = {
                         area: parseFloat(document.getElementById('internalWallsArea').value) || 0,
                         price: parseFloat(document.getElementById('internalWallsPrice').value) || 0
                     };
                 }
                 if (!document.getElementById('basementInfo').classList.contains('hidden')) {
-                    formData.building.basement = {
+                    inputs.building.basement = {
                         floors: parseInt(document.getElementById('basementFloors').value) || 0,
                         ceilingArea: parseFloat(document.getElementById('basementCeilingArea').value) || 0,
                         price: parseFloat(document.getElementById('basementPrice').value) || 0
                     };
                 }
-                if (formData.hasMap) {
-                    formData.technicalDetails = {
+                if (inputs.hasMap) {
+                    inputs.technicalDetails = {
                         totalRoofArea: parseFloat(document.getElementById('totalRoofArea').value) || 0,
                         externalAreas: parseFloat(document.getElementById('externalAreas').value) || 0,
                         skylightsArea: parseFloat(document.getElementById('skylightsArea').value) || 0,
@@ -929,25 +954,21 @@
                     };
                 }
 
-                console.log('البيانات المرسلة:', JSON.stringify(formData, null, 2));
+                console.log('البيانات المرسلة:', JSON.stringify(inputs, null, 2));
 
-                // إرسال الطلب
-                const response = await fetch('/api/process', {
+                // إرسال البيانات إلى الخادم
+                const response = await fetch('/api/calculate', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(formData)
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(inputs)
                 });
 
-                const responseText = await response.text();
-                console.log('استجابة الخادم:', responseText);
-
                 if (!response.ok) {
-                    throw new Error(`فشل في معالجة البيانات: ${response.status} - ${responseText}`);
+                    throw new Error('خطأ في الاتصال بالخادم');
                 }
 
-                const result = JSON.parse(responseText);
+                const result = await response.json();
+                console.log('استجابة الخادم:', result);
 
                 // عرض النتائج
                 const resultContainer = document.getElementById('resultContainer');
@@ -955,103 +976,44 @@
 
                 resultContent.innerHTML = `
                     <div class="result-section" id="pdfContent">
-                        <h3>تقرير تكاليف البناء</h3>
-                        <div class="customer-info">
-                            <p><strong>اسم الزبون:</strong> ${result.originalData.customer.name}</p>
-                            <p><strong>رقم الهاتف:</strong> ${result.originalData.customer.phone}</p>
-                            <p><strong>المحافظة:</strong> ${result.originalData.location.governorate}</p>
-                        </div>
-                        <div class="cost-summary">
-                            <h4>النتائج الرئيسية</h4>
-                            <p class="total-cost">${result.calculations.totalCost.toLocaleString('ar-EG')} دينار</p>
-                            <p>التكلفة لكل متر مربع: ${result.calculations.costPerSquareMeter.toLocaleString('ar-EG')} دينار/م²</p>
-                        </div>
-                        <div class="details-summary">
-                            <div class="detail-item">
-                                <span>عدد الطوب:</span>
-                                <span>${result.calculations.brickCount.toLocaleString('ar-EG')}</span>
-                            </div>
-                            <div class="detail-item">
-                                <span>حجم الخرسانة:</span>
-                                <span>${result.calculations.concreteVolume.toFixed(2)} م³</span>
-                            </div>
-                            ${result.calculations.doorsCount ? `
-                            <div class="detail-item">
-                                <span>عدد الأبواب:</span>
-                                <span>${result.calculations.doorsCount}</span>
-                            </div>
-                            <div class="detail-item">
-                                <span>تكلفة سياج السطح:</span>
-                                <span>${result.calculations.roofFenceCost.toLocaleString('ar-EG')} دينار</span>
-                            </div>
-                            ` : ''}
-                        </div>
+                        <h3>النتائج الرئيسية</h3>
+                        <p>تم حساب التكلفة بنجاح.</p>
+                        <p>التفاصيل: ${JSON.stringify(result, null, 2)}</p>
                     </div>
                 `;
 
                 resultContainer.style.display = 'block';
-                resultContainer.scrollIntoView({ behavior: 'smooth' });
 
-                // إنشاء PDF
-                await generatePDFFromHTML();
+                // تفعيل زر تحميل PDF
+                document.getElementById('downloadPdf').addEventListener('click', function() {
+                    const pdfContent = document.getElementById('pdfContent').innerHTML;
+                    const pdfWindow = window.open('');
+                    pdfWindow.document.write(`
+                        <html dir="rtl">
+                        <head>
+                            <title>تقرير تكاليف البناء</title>
+                            <style>
+                                body { font-family: 'Tajawal', sans-serif; padding: 20px; }
+                                h3 { color: #0a3d62; }
+                                p { line-height: 1.6; }
+                            </style>
+                        </head>
+                        <body>${pdfContent}</body>
+                        </html>
+                    `);
+                    pdfWindow.document.close();
+                    pdfWindow.print();
+                });
 
             } catch (error) {
-                console.error('خطأ:', error.message);
-                alert('حدث خطأ: ' + error.message);
+                console.error('خطأ:', error);
+                document.getElementById('resultContent').innerHTML = `<p style="color: red;">خطأ: ${error.message}</p>`;
+                document.getElementById('resultContainer').style.display = 'block';
             } finally {
                 submitBtn.innerHTML = originalBtnText;
                 submitBtn.disabled = false;
             }
         });
-
-        // دالة لإنشاء PDF من محتوى HTML
-        async function generatePDFFromHTML() {
-            try {
-                await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
-                await loadScript('https://html2canvas.hertzen.com/dist/html2canvas.min.js');
-
-                const { jsPDF } = window.jspdf;
-                const element = document.getElementById('pdfContent');
-
-                const canvas = await html2canvas(element, {
-                    scale: 2,
-                    logging: false,
-                    useCORS: true,
-                    allowTaint: true
-                });
-
-                const imgData = canvas.toDataURL('image/png');
-                const pdf = new jsPDF('p', 'mm', 'a4');
-                const imgWidth = pdf.internal.pageSize.getWidth();
-                const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-                pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
-                pdf.save('تقرير_تكاليف_البناء.pdf');
-
-            } catch (error) {
-                console.error('خطأ في إنشاء PDF:', error.message);
-                alert('حدث خطأ أثناء إنشاء PDF: ' + error.message);
-            }
-        }
-
-        // دالة مساعدة لتحميل السكربتات ديناميكياً
-        function loadScript(src) {
-            return new Promise((resolve, reject) => {
-                if (document.querySelector(`script[src="${src}"]`)) {
-                    resolve();
-                    return;
-                }
-
-                const script = document.createElement('script');
-                script.src = src;
-                script.onload = resolve;
-                script.onerror = reject;
-                document.head.appendChild(script);
-            });
-        }
-
-        // إعادة تحميل PDF عند النقر على زر التحميل
-        document.getElementById('downloadPdf').addEventListener('click', generatePDFFromHTML);
     </script>
 </body>
 </html>
