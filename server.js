@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const processData = require('./process');
+const processData = require('./api/process'); // استيراد من api/
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -11,7 +11,7 @@ app.use(express.static('public')); // خدمة index.html
 
 app.post('/api/process', (req, res) => {
   try {
-    console.log('البيانات المستلمة في /api/process:', req.body); // تسجيل البيانات
+    console.log('البيانات المستلمة في /api/process:', req.body); // تسجيل
     const data = req.body;
     if (!data || typeof data !== 'object') {
       throw new Error('البيانات المستلمة غير صالحة');
@@ -19,7 +19,7 @@ app.post('/api/process', (req, res) => {
     const result = processData.processData(data);
     res.status(200).json({ success: true, result });
   } catch (error) {
-    console.error('خطأ في الخادم:', error.stack); // تسجيل تفاصيل الخطأ
+    console.error('خطأ في الخادم:', error.stack); // تسجيل تفاصيل
     res.status(500).json({ success: false, error: error.message });
   }
 });
