@@ -1,5 +1,8 @@
 const express = require('express');
 const cors = require('cors');
+const validateInput = require('./middleware');
+const calculate = require('./calculate');
+const advancedCalculate = require('./advancedCalculate');
 
 const app = express();
 
@@ -12,54 +15,21 @@ app.use(cors({
 
 app.use(express.json());
 
-app.post('/', (req, res) => {
+// تطبيق التحقق
+app.post('/', validateInput, (req, res) => {
     try {
         const data = req.body;
 
-        // التحقق من البيانات الأساسية
-        if (!data.customer || !data.location || !data.land || !data.building || !data.prices) {
-            return res.status(400).json({
-                success: false,
-                error: 'البيانات الأساسية مطلوبة'
-            });
-        }
+        // تحديد دالة الحساب بناءً على hasMap
+        req.handler = data.hasMap ? advancedCalculate : calculate;
 
-        // منطق الحساب (مثال بسيط)
-        const totalArea = data.land.area * data.building.floors;
-        const baseCostPerMeter = 100000; // دينار لكل متر مربع
-        let totalCost = totalArea * baseCostPerMeter;
-
-        // إضافة تكاليف التشطيبات
-        totalCost += totalArea * (data.prices.flooring + data.prices.wallInstallation + data.prices.wallPainting);
-        totalCost += totalArea * data.prices.windowsDoors;
-
-        // تكلفة محجر الدرج
-        if (data.stairsRailingLength && data.prices.stairsRailing) {
-            totalCost += data.stairsRailingLength * data.prices.stairsRailing;
-        }
-
-        // تكاليف إضافية
-        if (data.building.hasGarden) totalCost += 5000000;
-        if (data.building.hasPool) totalCost += 10000000;
-        if (data.building.hasHVAC) totalCost += 7000000;
-        if (data.building.hasElevator) totalCost += 15000000;
-        if (data.building.hasFence) totalCost += 3000000;
-
-        // حساب عدد الطوب وحجم الخرسانة
-        const brickCount = totalArea * 100; // افتراضي
-        const concreteVolume = totalArea * 0.15; // افتراضي
+        // استدعاء دالة الحساب
+        const calculations = req.handler(data);
 
         res.status(200).json({
             success: true,
             originalData: data,
-            calculations: {
-                totalCost,
-                costPerSquareMeter: totalCost / totalArea,
-                brickCount,
-                concreteVolume,
-                doorsCount: data.technicalDetails ? (data.technicalDetails.externalDoors + data.technicalDetails.internalDoors) : 0,
-                roofFenceCost: data.technicalDetails && data.technicalDetails.roofFenceLength ? data.technicalDetails.roofFenceLength * 50000 : 0
-            }
+            calculations
         });
     } catch (error) {
         console.error('خطأ في المعالجة:', error.message);
