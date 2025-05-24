@@ -21,5 +21,5 @@ app.post('/api/process', (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`الخادم يعمل على http://localhost:${port}`);
+  console.log(`الخادم يعمل على المنفذ ${port}`);
 });
