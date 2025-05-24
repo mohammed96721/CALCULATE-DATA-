@@ -1,4 +1,4 @@
-// vercel.json                       {
+{
   "version": 2,
   "builds": [
     {
@@ -11,8 +11,13 @@
     }
   ],
   "routes": [
-    { "src": "/api/(.*)", "dest": "server.js" },
-    { "src": "/(.*)", "dest": "public/$1" }
+    {
+      "src": "/api/(.*)",
+      "dest": "server.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "public/$1"
+    }
   ]
 }
-
