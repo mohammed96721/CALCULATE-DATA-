@@ -1,3 +1,4 @@
+// advancedCalculate.js
 async function calculate(inputs) {
     try {
         if (!inputs || !inputs.technicalDetails) {
@@ -59,4 +60,6 @@ async function calculate(inputs) {
         throw new Error(`فشل في الحساب المتقدم: ${error.message}`);
     }
 }
-module.exports = { calculate };
+
+// تصدير افتراضي
+export default { calculate };
