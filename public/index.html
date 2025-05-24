@@ -846,165 +846,171 @@
         submitBtn.disabled = true;
 
         try {
-            // 1. جمع البيانات من النموذج
-            const formData = {
-                customer: {
-                    name: document.getElementById('customerName').value,
-                    phone: document.getElementById('phoneNumber').value
-                },
-                location: {
-                    governorate: document.getElementById('governorate').value,
-                    area: document.getElementById('area').value
-                },
-                land: {
-                    area: parseFloat(document.getElementById('landArea').value),
-                    facadeWidth: parseFloat(document.getElementById('facadeWidth').value)
-                },
-                building: {
-                    floors: parseInt(document.getElementById('floors').value),
-                    rooms: parseInt(document.getElementById('rooms').value),
-                    bathrooms: parseInt(document.getElementById('bathrooms').value),
-                    groundFloorHeight: parseFloat(document.getElementById('groundFloorHeight').value),
-                    otherFloorsHeight: parseFloat(document.getElementById('otherFloorsHeight').value),
-                    brickType: document.getElementById('brickType').value,
-                    woodType: document.getElementById('woodType').value,
-                    facadeType: document.getElementById('facadeType').value,
-                    hasGarden: document.getElementById('hasGarden').checked,
-                    hasPool: document.getElementById('hasPool').checked,
-                    hasHVAC: document.getElementById('hasHVAC').checked,
-                    hasElevator: document.getElementById('hasElevator').checked,
-                    hasFence: document.getElementById('hasFence').checked
-                },
-                prices: {
-                    flooring: parseFloat(document.getElementById('flooringPrice').value),
-                    wallInstallation: parseFloat(document.getElementById('wallInstallationPrice').value),
-                    wallPainting: parseFloat(document.getElementById('wallPaintingPrice').value),
-                    windowsDoors: parseFloat(document.getElementById('windowsDoorsPrice').value),
-                    stairsRailing: parseFloat(document.getElementById('stairsRailingPrice').value || 0)
-                }
+        // جمع البيانات من النموذج
+        const formData = {
+            customer: {
+                name: document.getElementById('customerName').value,
+                phone: document.getElementById('phoneNumber').value
+            },
+            location: {
+                governorate: document.getElementById('governorate').value,
+                area: document.getElementById('area').value
+            },
+            land: {
+                area: parseFloat(document.getElementById('landArea').value),
+                facadeWidth: parseFloat(document.getElementById('facadeWidth').value)
+            },
+            building: {
+                floors: parseInt(document.getElementById('floors').value),
+                rooms: parseInt(document.getElementById('rooms').value),
+                bathrooms: parseInt(document.getElementById('bathrooms').value),
+                groundFloorHeight: parseFloat(document.getElementById('groundFloorHeight').value),
+                otherFloorsHeight: parseFloat(document.getElementById('otherFloorsHeight').value),
+                brickType: document.getElementById('brickType').value,
+                woodType: document.getElementById('woodType').value,
+                facadeType: document.getElementById('facadeType').value,
+                hasGarden: document.getElementById('hasGarden')?.checked || false,
+                hasPool: document.getElementById('hasPool')?.checked || false,
+                hasHVAC: document.getElementById('hasHVAC')?.checked || false,
+                hasElevator: document.getElementById('hasElevator')?.checked || false,
+                hasFence: document.getElementById('hasFence')?.checked || false
+            },
+            prices: {
+                flooring: parseFloat(document.getElementById('flooringPrice').value),
+                wallInstallation: parseFloat(document.getElementById('wallInstallationPrice').value),
+                wallPainting: parseFloat(document.getElementById('wallPaintingPrice').value),
+                windowsDoors: parseFloat(document.getElementById('windowsDoorsPrice').value),
+                stairsRailing: parseFloat(document.getElementById('stairsRailingPrice').value || 0)
+            },
+            stairsRailingLength: parseFloat(document.getElementById('stairsRailingLength').value || 0)
+        };
+
+        // إضافة الحقول الاختيارية
+        if (!document.getElementById('otherBrickInfo').classList.contains('hidden')) {
+            formData.building.brickDetails = {
+                width: parseFloat(document.getElementById('brickWidth').value),
+                length: parseFloat(document.getElementById('brickLength').value),
+                height: parseFloat(document.getElementById('brickHeight').value),
+                density: parseFloat(document.getElementById('brickDensity').value)
             };
+        }
+        if (!document.getElementById('concreteColumnsInfo').classList.contains('hidden')) {
+            formData.building.concreteVolume = parseFloat(document.getElementById('concreteVolume').value);
+        }
+        if (!document.getElementById('apartmentsInfo').classList.contains('hidden')) {
+            formData.building.apartmentsCount = parseInt(document.getElementById('apartmentsCount').value);
+        }
+        if (!document.getElementById('customFacadeInfo').classList.contains('hidden')) {
+            formData.building.customFacade = {
+                area: parseFloat(document.getElementById('facadeArea').value),
+                price: parseFloat(document.getElementById('facadePrice').value)
+            };
+        }
+        if (!document.getElementById('mapDetailsInfo').classList.contains('hidden')) {
+            formData.technicalDetails = {
+                totalRoofArea: parseFloat(document.getElementById('totalRoofArea').value),
+                externalAreas: parseFloat(document.getElementById('externalAreas').value),
+                skylightsArea: parseFloat(document.getElementById('skylightsArea').value),
+                tiesLength: parseFloat(document.getElementById('tiesLength').value),
+                invertedBeams: parseFloat(document.getElementById('invertedBeams').value),
+                externalWalls24cm: parseFloat(document.getElementById('externalWalls24cm').value),
+                internalWalls24cm: parseFloat(document.getElementById('internalWalls24cm').value),
+                roofFenceLength: parseFloat(document.getElementById('roofFenceLength').value),
+                externalDoors: parseInt(document.getElementById('externalDoors').value),
+                internalDoors: parseInt(document.getElementById('internalDoors').value),
+                facadeWindowsDoorsArea: parseFloat(document.getElementById('facadeWindowsDoorsArea').value),
+                skylightWindowsDoorsArea: parseFloat(document.getElementById('skylightWindowsDoorsArea').value),
+                secondaryCeilingsArea: parseFloat(document.getElementById('secondaryCeilingsArea').value),
+                decorativeWallsArea: parseFloat(document.getElementById('decorativeWallsArea').value),
+                claddingWallsArea: parseFloat(document.getElementById('claddingWallsArea').value)
+            };
+        }
+        if (!document.getElementById('internalWallsInfo').classList.contains('hidden')) {
+            formData.building.internalWalls = {
+                area: parseFloat(document.getElementById('internalWallsArea').value),
+                price: parseFloat(document.getElementById('internalWallsPrice').value)
+            };
+        }
+        if (!document.getElementById('basementInfo').classList.contains('hidden')) {
+            formData.building.basement = {
+                floors: parseInt(document.getElementById('basementFloors').value),
+                ceilingArea: parseFloat(document.getElementById('basementCeilingArea').value),
+                price: parseFloat(document.getElementById('basementPrice').value)
+            };
+        }
 
-            // 2. إضافة الحقول الاختيارية إذا كانت مرئية
-            if (!document.getElementById('otherBrickInfo').classList.contains('hidden')) {
-                formData.building.brickDetails = {
-                    width: parseFloat(document.getElementById('brickWidth').value),
-                    length: parseFloat(document.getElementById('brickLength').value),
-                    height: parseFloat(document.getElementById('brickHeight').value),
-                    density: parseFloat(document.getElementById('brickDensity').value)
-                };
-            }
-            
-            if (!document.getElementById('concreteColumnsInfo').classList.contains('hidden')) {
-                formData.building.concreteVolume = parseFloat(document.getElementById('concreteVolume').value);
-            }
-            
-            if (!document.getElementById('apartmentsInfo').classList.contains('hidden')) {
-                formData.building.apartmentsCount = parseInt(document.getElementById('apartmentsCount').value);
-            }
-            
-            if (!document.getElementById('customFacadeInfo').classList.contains('hidden')) {
-                formData.building.customFacade = {
-                    area: parseFloat(document.getElementById('facadeArea').value),
-                    price: parseFloat(document.getElementById('facadePrice').value)
-                };
-            }
-            
-            if (!document.getElementById('mapDetailsInfo').classList.contains('hidden')) {
-                formData.technicalDetails = {
-                    totalRoofArea: parseFloat(document.getElementById('totalRoofArea').value),
-                    externalAreas: parseFloat(document.getElementById('externalAreas').value),
-                    skylightsArea: parseFloat(document.getElementById('skylightsArea').value),
-                    tiesLength: parseFloat(document.getElementById('tiesLength').value),
-                    invertedBeams: parseFloat(document.getElementById('invertedBeams').value),
-                    externalWalls24cm: parseFloat(document.getElementById('externalWalls24cm').value),
-                    internalWalls24cm: parseFloat(document.getElementById('internalWalls24cm').value),
-                    roofFenceLength: parseFloat(document.getElementById('roofFenceLength').value),
-                    externalDoors: parseInt(document.getElementById('externalDoors').value),
-                    internalDoors: parseInt(document.getElementById('internalDoors').value),
-                    facadeWindowsDoorsArea: parseFloat(document.getElementById('facadeWindowsDoorsArea').value),
-                    skylightWindowsDoorsArea: parseFloat(document.getElementById('skylightWindowsDoorsArea').value),
-                    secondaryCeilingsArea: parseFloat(document.getElementById('secondaryCeilingsArea').value),
-                    decorativeWallsArea: parseFloat(document.getElementById('decorativeWallsArea').value),
-                    claddingWallsArea: parseFloat(document.getElementById('claddingWallsArea').value)
-                };
-            }
-            
-            if (!document.getElementById('internalWallsInfo').classList.contains('hidden')) {
-                formData.building.internalWalls = {
-                    area: parseFloat(document.getElementById('internalWallsArea').value),
-                    price: parseFloat(document.getElementById('internalWallsPrice').value)
-                };
-            }
-            
-            if (!document.getElementById('basementInfo').classList.contains('hidden')) {
-                formData.building.basement = {
-                    floors: parseInt(document.getElementById('basementFloors').value),
-                    ceilingArea: parseFloat(document.getElementById('basementCeilingArea').value),
-                    price: parseFloat(document.getElementById('basementPrice').value)
-                };
-            }
+        // إنشاء التوقيع الرقمي
+        const signatureSecret = "your_signature_secret_here"; // استبدل بالقيمة الحقيقية
+        const shaObj = new jsSHA("SHA-256", "TEXT");
+        shaObj.update(JSON.stringify(formData));
+        const signature = shaObj.getHash("HEX");
 
-            // 3. إرسال البيانات إلى API
-            const response = await fetch('/api/calculate', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData)
-            });
-            
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'فشل في معالجة البيانات');
-            }
-            
-            // 4. استقبال البيانات المعالجة
-            const result = await response.json();
+        // إضافة التوكن (يجب الحصول عليه من عملية تسجيل دخول)
+        const token = "your_jwt_token_here"; // استبدل بالتوكن الحقيقي
 
-             // 5. عرض النتائج في الصفحة أولاً
-            const resultContainer = document.getElementById('resultContainer');
-            const resultContent = document.getElementById('resultContent');
-            
-            resultContent.innerHTML = `
-                <div class="result-section" id="pdfContent">
-                    <h3>تقرير تكاليف البناء</h3>
-                    <div class="customer-info">
-                        <p><strong>اسم الزبون:</strong> ${result.originalData.customer.name}</p>
-                        <p><strong>رقم الهاتف:</strong> ${result.originalData.customer.phone}</p>
-                        <p><strong>المحافظة:</strong> ${result.originalData.location.governorate}</p>
+        // إرسال الطلب إلى API
+        const response = await fetch('/api/calculate', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+                'x-signature': signature
+            },
+            body: JSON.stringify(formData)
+        });
+
+        if (!response.ok) {
+            const errorData = await response.text(); // استخدام text() لفحص الاستجابة الخام
+            console.log('Raw response:', errorData);
+            throw new Error(`فشل في معالجة البيانات: ${errorData}`);
+        }
+
+        const result = await response.json();
+
+        // عرض النتائج
+        const resultContainer = document.getElementById('resultContainer');
+        const resultContent = document.getElementById('resultContent');
+        
+        resultContent.innerHTML = `
+            <div class="result-section" id="pdfContent">
+                <h3>تقرير تكاليف البناء</h3>
+                <div class="customer-info">
+                    <p><strong>اسم الزبون:</strong> ${result.originalData.customer.name}</p>
+                    <p><strong>رقم الهاتف:</strong> ${result.originalData.customer.phone}</p>
+                    <p><strong>المحافظة:</strong> ${result.originalData.location.governorate}</p>
+                </div>
+                <div class="cost-summary">
+                    <h4>النتائج الرئيسية</h4>
+                    <p class="total-cost">${result.calculations.totalCost.toLocaleString('ar-EG')} دينار</p>
+                    <p>التكلفة لكل متر مربع: ${result.calculations.costPerSquareMeter.toLocaleString('ar-EG')} دينار/م²</p>
+                </div>
+                <div class="details-summary">
+                    <div class="detail-item">
+                        <span>عدد الطوب:</span>
+                        <span>${result.calculations.brickCount.toLocaleString('ar-EG')}</span>
                     </div>
-                    
-                    <div class="cost-summary">
-                        <h4>النتائج الرئيسية</h4>
-                        <p class="total-cost">${result.calculations.totalCost.toLocaleString('ar-EG')} دينار</p>
-                        <p>التكلفة لكل متر مربع: ${result.calculations.costPerSquareMeter.toLocaleString('ar-EG')} دينار/م²</p>
-                    </div>
-                    
-                    <div class="details-summary">
-                        <div class="detail-item">
-                            <span>عدد الطوب:</span>
-                            <span>${result.calculations.brickCount.toLocaleString('ar-EG')}</span>
-                        </div>
-                        <div class="detail-item">
-                            <span>حجم الخرسانة:</span>
-                            <span>${result.calculations.concreteVolume.toFixed(2)} م³</span>
-                        </div>
+                    <div class="detail-item">
+                        <span>حجم الخرسانة:</span>
+                        <span>${result.calculations.concreteVolume.toFixed(2)} م³</span>
                     </div>
                 </div>
-            `;
-            
-            resultContainer.style.display = 'block';
-            resultContainer.scrollIntoView({ behavior: 'smooth' });
+            </div>
+        `;
+        
+        resultContainer.style.display = 'block';
+        resultContainer.scrollIntoView({ behavior: 'smooth' });
 
-            // 6. إنشاء PDF من الصفحة بعد عرض النتائج
-            await generatePDFFromHTML();
+        // إنشاء PDF
+        await generatePDFFromHTML();
 
-        } catch (error) {
-            console.error('Error:', error);
-            alert('حدث خطأ: ' + error.message);
-        } finally {
-            submitBtn.innerHTML = originalBtnText;
-            submitBtn.disabled = false;
-        }
-    });
+    } catch (error) {
+        console.error('Error:', error);
+        alert('حدث خطأ: ' + error.message);
+    } finally {
+        submitBtn.innerHTML = originalBtnText;
+        submitBtn.disabled = false;
+    }
+});
 
     // دالة لإنشاء PDF من محتوى HTML
     async function generatePDFFromHTML() {
