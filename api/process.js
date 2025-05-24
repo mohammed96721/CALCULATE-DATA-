@@ -20,6 +20,4 @@ function routeCalculation(inputs) {
         throw new Error(`فشل في توجيه البيانات: ${error.message}`);
     }
 }
-
-// تصدير افتراضي للدالة
 export default routeCalculation;
