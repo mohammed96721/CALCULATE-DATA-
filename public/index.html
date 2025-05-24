@@ -941,18 +941,18 @@
         }
 
         // إرسال الطلب إلى مسار مشترك
-        const response = await fetch('/api/process', {
+        
+        const response = await fetch('/.netlify/functions/server/api/process', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify(formData)
         });
-
+        const responseText = await response.text();
+        console.log('استجابة الخادم:', responseText);
         if (!response.ok) {
-            const errorData = await response.text();
-            console.log('Raw response:', errorData);
-            throw new Error(`فشل في معالجة البيانات: ${errorData}`);
+          throw new Error(`فشل في معالجة البيانات: ${responseText}`);
         }
 
         const result = await response.json();
