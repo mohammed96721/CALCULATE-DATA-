@@ -1,4 +1,4 @@
-// calculate.js
+// api/calculate.js
 async function calculate(inputs) {
     const startTime = performance.now();
     try {
@@ -6,13 +6,10 @@ async function calculate(inputs) {
         if (!inputs) {
             throw new Error('البيانات المرسلة فارغة');
         }
-
-        // إرجاع المدخلات كما هي بدون حسابات
         const result = {
             inputs: inputs,
             details: 'اختبار: إرجاع المدخلات بدون حسابات'
         };
-
         const endTime = performance.now();
         console.log(`calculate استغرق ${endTime - startTime} ميلي ثانية`);
         console.log('إرجاع النتيجة:', JSON.stringify(result, null, 2));
@@ -24,5 +21,4 @@ async function calculate(inputs) {
         throw new Error(`فشل في معالجة المدخلات: ${error.message}`);
     }
 }
-
 export default { calculate };
