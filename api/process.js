@@ -1,3 +1,4 @@
+// process.js
 function routeCalculation(inputs) {
     try {
         if (!inputs) {
@@ -19,4 +20,6 @@ function routeCalculation(inputs) {
         throw new Error(`فشل في توجيه البيانات: ${error.message}`);
     }
 }
-module.exports = { routeCalculation };
+
+// تصدير افتراضي للدالة
+export default routeCalculation;
