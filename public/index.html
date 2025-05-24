@@ -882,7 +882,8 @@
                 windowsDoors: parseFloat(document.getElementById('windowsDoorsPrice').value),
                 stairsRailing: parseFloat(document.getElementById('stairsRailingPrice').value || 0)
             },
-            stairsRailingLength: parseFloat(document.getElementById('stairsRailingLength').value || 0)
+            stairsRailingLength: parseFloat(document.getElementById('stairsRailingLength').value || 0),
+            hasMap: !document.getElementById('mapDetailsInfo').classList.contains('hidden')
         };
 
         // إضافة الحقول الاختيارية
@@ -906,7 +907,7 @@
                 price: parseFloat(document.getElementById('facadePrice').value)
             };
         }
-        if (!document.getElementById('mapDetailsInfo').classList.contains('hidden')) {
+        if (formData.hasMap) {
             formData.technicalDetails = {
                 totalRoofArea: parseFloat(document.getElementById('totalRoofArea').value),
                 externalAreas: parseFloat(document.getElementById('externalAreas').value),
@@ -939,18 +940,17 @@
             };
         }
 
-       
-        // إرسال الطلب إلى API
-        const response = await fetch('/api/calculate', {
+        // إرسال الطلب إلى مسار مشترك
+        const response = await fetch('/api/process', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify(formData)
         });
 
         if (!response.ok) {
-            const errorData = await response.text(); // استخدام text() لفحص الاستجابة الخام
+            const errorData = await response.text();
             console.log('Raw response:', errorData);
             throw new Error(`فشل في معالجة البيانات: ${errorData}`);
         }
@@ -983,6 +983,16 @@
                         <span>حجم الخرسانة:</span>
                         <span>${result.calculations.concreteVolume.toFixed(2)} م³</span>
                     </div>
+                    ${result.calculations.doorsCount ? `
+                    <div class="detail-item">
+                        <span>عدد الأبواب:</span>
+                        <span>${result.calculations.doorsCount}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span>تكلفة سياج السطح:</span>
+                        <span>${result.calculations.roofFenceCost.toLocaleString('ar-EG')} دينار</span>
+                    </div>
+                    ` : ''}
                 </div>
             </div>
         `;
