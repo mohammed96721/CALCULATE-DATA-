@@ -1,4 +1,3 @@
-
 const express = require('express');
 const serverless = require('serverless-http');
 const cors = require('cors');
@@ -12,7 +11,6 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// تطبيق middleware على المسار
 app.post('/api/calculate', middleware, calculate);
 
 module.exports.handler = serverless(app);
