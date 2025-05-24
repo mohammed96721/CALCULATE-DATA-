@@ -1,113 +1,33 @@
-const calculateBuiltArea = (data) => {
-    const groundFloorArea = data.land.area;
-    const otherFloorsArea = data.land.area * (data.building.floors - 1);
-    return groundFloorArea + otherFloorsArea;
-};
+module.exports = function calculate(data) {
+    const totalArea = data.land.area * data.building.floors;
+    const baseCostPerMeter = 100000; // دينار لكل متر مربع
+    let totalCost = totalArea * baseCostPerMeter;
 
-const calculateConstructionCost = (data) => {
-    const baseCost = data.land.area * data.building.floors * (data.prices.constructionRate || 150000);
-    const foundationCost = data.land.area * (data.prices.foundationRate || 50000);
-    return baseCost + foundationCost;
-};
+    // إضافة تكاليف التشطيبات
+    totalCost += totalArea * (data.prices.flooring + data.prices.wallInstallation + data.prices.wallPainting);
+    totalCost += totalArea * data.prices.windowsDoors;
 
-const calculateFinishingCost = (data) => {
-    let cost = 0;
-    cost += data.land.area * data.building.floors * data.prices.flooring;
-    cost += data.land.area * data.building.floors * data.prices.wallInstallation;
-    cost += data.land.area * data.building.floors * data.prices.wallPainting;
-    
+    // تكلفة محجر الدرج
     if (data.stairsRailingLength && data.prices.stairsRailing) {
-        cost += data.stairsRailingLength * data.prices.stairsRailing;
+        totalCost += data.stairsRailingLength * data.prices.stairsRailing;
     }
-    
-    return cost;
-};
 
-const calculateBrickCount = (data) => {
-    const brickSize = data.building.brickType === 'red' ? 0.002 : 0.0018;
-    const wallArea = data.land.facadeWidth * data.building.groundFloorHeight * 4;
-    return Math.ceil(wallArea / brickSize) * data.building.floors;
-};
+    // تكاليف إضافية
+    if (data.building.hasGarden) totalCost += 5000000;
+    if (data.building.hasPool) totalCost += 10000000;
+    if (data.building.hasHVAC) totalCost += 7000000;
+    if (data.building.hasElevator) totalCost += 15000000;
+    if (data.building.hasFence) totalCost += 3000000;
 
-const calculateConcreteVolume = (data) => {
-    const slabVolume = data.land.area * 0.2;
-    const columnsVolume = data.building.floors * 4 * 0.3 * 0.3 * 3;
-    
-    if (data.building.concreteVolume) {
-        return slabVolume + columnsVolume + data.building.concreteVolume;
-    }
-    return slabVolume + columnsVolume;
-};
+    const brickCount = totalArea * 100; // افتراضي
+    const concreteVolume = totalArea * 0.15; // افتراضي
 
-module.exports = async (req, res) => {
-    try {
-        const formData = req.body;
-
-        if (formData.hasMap) {
-            return res.status(400).json({
-                success: false,
-                error: 'البيانات الفنية يجب أن تُعالج في /api/advanced-calculate'
-            });
-        }
-
-        const calculations = {
-            totalLandArea: formData.land.area,
-            totalBuiltArea: calculateBuiltArea(formData),
-            constructionCost: calculateConstructionCost(formData),
-            finishingCost: calculateFinishingCost(formData),
-            brickCount: calculateBrickCount(formData),
-            concreteVolume: calculateConcreteVolume(formData),
-            stairsCost: formData.prices.stairsRailing * (formData.stairsRailingLength || 0),
-            facadeCost: formData.building.customFacade?.area 
-                      ? formData.building.customFacade.area * formData.building.customFacade.price 
-                      : 0,
-            totalCost: 0,
-            costPerSquareMeter: 0,
-            costPerCubicMeter: 0
-        };
-
-        calculations.totalCost = 
-            calculations.constructionCost +
-            calculations.finishingCost +
-            calculations.stairsCost +
-            calculations.facadeCost;
-
-        calculations.costPerSquareMeter = calculations.totalCost / calculations.totalBuiltArea;
-        calculations.costPerCubicMeter = calculations.totalCost / (calculations.totalBuiltArea * formData.building.groundFloorHeight);
-
-        res.status(200).json({
-            success: true,
-            message: 'تمت معالجة البيانات الأساسية بنجاح',
-            originalData: formData,
-            calculations,
-            timestamp: new Date().toISOString(),
-            pdfOptions: {
-                title: "تقرير تكاليف البناء (تقدير أساسي)",
-                author: "النظام الآلي",
-                direction: "rtl",
-                font: "Tajawal",
-                columns: [
-                    { title: "البند", dataKey: "item" },
-                    { title: "القيمة", dataKey: "value" }
-                ],
-                data: [
-                    { item: "المساحة الكلية", value: `${calculations.totalBuiltArea} م²` },
-                    { item: "التكلفة الإجمالية", value: `${calculations.totalCost.toLocaleString('ar-EG')} دينار` }
-                ]
-            }
-        });
-
-    } catch (error) {
-        console.error('فشل في معالجة البيانات الأساسية', {
-            error: error.message,
-            endpoint: '/calculate',
-            user: req.user?.id
-        });
-
-        res.status(400).json({
-            success: false,
-            error: error.message,
-            details: process.env.NODE_ENV === 'development' ? error.stack : undefined
-        });
-    }
+    return {
+        totalCost,
+        costPerSquareMeter: totalCost / totalArea,
+        brickCount,
+        concreteVolume,
+        doorsCount: 0,
+        roofFenceCost: 0
+    };
 };
