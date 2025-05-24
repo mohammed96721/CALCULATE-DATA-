@@ -1,29 +1,19 @@
-const express = require('express');
-const cors = require('cors');
-const processData = require('./api/process'); // استيراد من api/
+const calculate = require('./calculate'); // نفس المجلد (api/)
+const advancedCalculate = require('./advancedCalculate'); // نفس المجلد (api/)
 
-const app = express();
-const port = process.env.PORT || 3000;
-
-app.use(express.json());
-app.use(cors());
-app.use(express.static('public')); // خدمة index.html
-
-app.post('/api/process', (req, res) => {
+function processData(data) {
   try {
-    console.log('البيانات المستلمة في /api/process:', req.body); // تسجيل
-    const data = req.body;
+    console.log('البيانات في process.js:', data);
     if (!data || typeof data !== 'object') {
-      throw new Error('البيانات المستلمة غير صالحة');
+      throw new Error('البيانات غير صالحة');
     }
-    const result = processData.processData(data);
-    res.status(200).json({ success: true, result });
+    const hasMap = data.hasMap || false;
+    console.log('hasMap:', hasMap);
+    return hasMap ? advancedCalculate.processAdvanced(data) : calculate.processBasic(data);
   } catch (error) {
-    console.error('خطأ في الخادم:', error.stack); // تسجيل تفاصيل
-    res.status(500).json({ success: false, error: error.message });
+    console.error('خطأ في process.js:', error.stack);
+    throw new Error(`خطأ في توجيه البيانات: ${error.message}`);
   }
-});
+}
 
-app.listen(port, () => {
-  console.log(`الخادم يعمل على http://localhost:${port}`);
-});
+module.exports = { processData };
