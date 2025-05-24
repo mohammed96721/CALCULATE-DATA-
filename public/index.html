@@ -953,9 +953,12 @@
                     claddingWallsArea: parseFloat(document.getElementById('claddingWallsArea').value) || 0
                 };
             }
-
-            console.log('البيانات المرسلة:', JSON.stringify(inputs, null, 2));
-
+            // إضافة تسجيل البيانات هنا
+            console.log('البيانات المرسلة:', JSON.stringify(inputs, (key, value) => {
+                if (value === undefined) return 'undefined';
+                if (value === null) return 'null';
+                return value;
+            }, 2));
             // إرسال البيانات إلى نقطة نهاية API
             const response = await fetch('/api/process', { // أو أي مسار آخر
                 method: 'POST',
