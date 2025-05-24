@@ -552,7 +552,7 @@
                             <div class="form-col">
                                 <div class="form-group">
                                     <label for="facadePrice"><i class="fas fa-money-bill"></i> سعر م² الواجهة المخصصة</label>
-                                    <input type="number" id="facadePrice" class="form-control" min="0">
+                                <input type="number" id="facadePrice" class="form-control" min="0">
                                 </div>
                             </div>
                         </div>
@@ -825,7 +825,7 @@
             document.getElementById('customFacadeInfo').classList.toggle('hidden', this.value !== 'custom');
         });
 
-        // معالجة إرسال النموذج مع تعديلات لإصلاح "Failed to fetch"
+        // معالجة إرسال النموذج
         document.getElementById('buildingForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
