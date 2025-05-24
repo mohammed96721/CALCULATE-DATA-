@@ -3,7 +3,6 @@ const serverless = require('serverless-http');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const middleware = require('./middleware');
-const calculate = require('./api/calculate');
 
 dotenv.config();
 const app = express();
@@ -11,6 +10,16 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.post('/api/calculate', middleware, calculate);
+// مسار مشترك يستخدم المعالج المحدد في middleware
+app.post('/api/process', middleware, (req, res) => {
+    if (!req.handler) {
+        return res.status(500).json({
+            success: false,
+            error: 'لم يتم تحديد معالج الطلب',
+            timestamp: new Date().toISOString()
+        });
+    }
+    req.handler(req, res);
+});
 
 module.exports.handler = serverless(app);
