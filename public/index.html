@@ -6,236 +6,295 @@
     <title>حاسبة تكاليف البناء</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Tajawal', Arial, sans-serif;
+            background-color: #f4f4f9;
             margin: 20px;
             direction: rtl;
+            color: #333;
+        }
+        h1, h3 {
+            color: #2c3e50;
+            text-align: center;
         }
         form {
             max-width: 800px;
             margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
         label {
             display: block;
-            margin-top: 10px;
+            margin-top: 15px;
+            font-weight: bold;
+            color: #34495e;
         }
         input, select {
             width: 100%;
-            padding: 8px;
+            padding: 10px;
             margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        input[type="checkbox"] {
+            width: auto;
+            margin-left: 10px;
         }
         .hidden {
             display: none;
         }
-        #resultContainer {
-            display: none;
-            margin-top: 20px;
-            padding: 20px;
-            border: 1px solid #ccc;
-            background-color: #f9f9f9;
-        }
-        .result-section {
+        .section {
             margin-bottom: 20px;
         }
+        #resultContainer {
+            display: none;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .result-section h3 {
+            color: #2c3e50;
+        }
         .customer-info p {
-            margin: 5px 0;
+            margin: 8px 0;
+            font-size: 16px;
         }
         .cost-summary h4 {
-            margin-bottom: 10px;
+            margin-bottom: 15px;
+            color: #34495e;
         }
         .total-cost {
-            font-size: 1.5em;
-            color: #2c3e50;
+            font-size: 1.8em;
+            color: #27ae60;
+            margin: 10px 0;
         }
         .details-summary .detail-item {
             display: flex;
             justify-content: space-between;
-            padding: 5px 0;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
         }
         button {
-            margin-top: 20px;
-            padding: 10px 20px;
-            background-color: #007bff;
+            display: block;
+            width: 200px;
+            margin: 20px auto;
+            padding: 12px;
+            background-color: #2980b9;
             color: white;
             border: none;
+            border-radius: 5px;
+            font-size: 16px;
             cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #3498db;
         }
         button:disabled {
-            background-color: #6c757d;
+            background-color: #95a5a6;
             cursor: not-allowed;
         }
+        @media (max-width: 600px) {
+            form, #resultContainer {
+                margin: 10px;
+                padding: 15px;
+            }
+            button {
+                width: 100%;
+            }
+        }
     </style>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
+    <h1>حاسبة تكاليف البناء</h1>
     <form id="buildForm">
-        <!-- حقول معلومات الزبون -->
-        <h3>معلومات الزبون</h3>
-        <label for="customerName">اسم الزبون:</label>
-        <input type="text" id="customerName" required>
-        <label for="phoneNumber">رقم الهاتف:</label>
-        <input type="text" id="phoneNumber" required>
+        <!-- معلومات الزبون -->
+        <div class="section">
+            <h3>معلومات الزبون</h3>
+            <label for="customerName">اسم الزبون:</label>
+            <input type="text" id="customerName" required>
+            <label for="phoneNumber">رقم الهاتف:</label>
+            <input type="text" id="phoneNumber" required>
+        </div>
 
-        <!-- حقول الموقع -->
-        <h3>معلومات الموقع</h3>
-        <label for="governorate">المحافظة:</label>
-        <select id="governorate" required>
-            <option value="baghdad">بغداد</option>
-            <option value="basra">البصرة</option>
-            <option value="najaf">النجف</option>
-            <option value="karbala">كربلاء</option>
-            <option value="erbil">أربيل</option>
-            <option value="sulaymaniyah">السليمانية</option>
-            <option value="duhok">دهوك</option>
-            <option value="kirkuk">كركوك</option>
-            <option value="mosul">الموصل</option>
-            <option value="anbar">الأنبار</option>
-            <option value="saladin">صلاح الدين</option>
-            <option value="diyala">ديالى</option>
-            <option value="wasit">واسط</option>
-            <option value="babil">بابل</option>
-            <option value="qadisiyah">القادسية</option>
-            <option value="muthanna">المثنى</option>
-            <option value="dhi_qar">ذي قار</option>
-            <option value="maysan">ميسان</option>
-        </select>
-        <label for="area">المنطقة:</label>
-        <input type="text" id="area" required>
+        <!-- معلومات الموقع -->
+        <div class="section">
+            <h3>معلومات الموقع</h3>
+            <label for="governorate">المحافظة:</label>
+            <select id="governorate" required>
+                <option value="baghdad">بغداد</option>
+                <option value="basra">البصرة</option>
+                <option value="najaf">النجف</option>
+                <option value="karbala">كربلاء</option>
+                <option value="erbil">أربيل</option>
+                <option value="sulaymaniyah">السليمانية</option>
+                <option value="duhok">دهوك</option>
+                <option value="kirkuk">كركوك</option>
+                <option value="mosul">الموصل</option>
+                <option value="anbar">الأنبار</option>
+                <option value="saladin">صلاح الدين</option>
+                <option value="diyala">ديالى</option>
+                <option value="wasit">واسط</option>
+                <option value="babil">بابل</option>
+                <option value="qadisiyah">القادسية</option>
+                <option value="muthanna">المثنى</option>
+                <option value="dhi_qar">ذي قار</option>
+                <option value="maysan">ميسان</option>
+            </select>
+            <label for="area">المنطقة:</label>
+            <input type="text" id="area" required>
+        </div>
 
-        <!-- حقول الأرض -->
-        <h3>معلومات الأرض</h3>
-        <label for="landArea">مساحة الأرض (م²):</label>
-        <input type="number" id="landArea" step="0.01" required>
-        <label for="facadeWidth">عرض الواجهة (م):</label>
-        <input type="number" id="facadeWidth" step="0.01">
+        <!-- معلومات الأرض -->
+        <div class="section">
+            <h3>معلومات الأرض</h3>
+            <label for="landArea">مساحة الأرض (م²):</label>
+            <input type="number" id="landArea" step="0.01" required>
+            <label for="facadeWidth">عرض الواجهة (م):</label>
+            <input type="number" id="facadeWidth" step="0.01">
+        </div>
 
-        <!-- حقول المبنى -->
-        <h3>معلومات المبنى</h3>
-        <label for="floors">عدد الطوابق:</label>
-        <input type="number" id="floors" required>
-        <label for="rooms">عدد الغرف:</label>
-        <input type="number" id="rooms" required>
-        <label for="bathrooms">عدد الحمامات:</label>
-        <input type="number" id="bathrooms" required>
-        <label for="groundFloorHeight">ارتفاع الطابق الأرضي (م):</label>
-        <input type="number" id="groundFloorHeight" step="0.01">
-        <label for="otherFloorsHeight">ارتفاع الطوابق الأخرى (م):</label>
-        <input type="number" id="otherFloorsHeight" step="0.01">
-        <label for="brickType">نوع الطوب:</label>
-        <select id="brickType">
-            <option value="yellow">أصفر</option>
-            <option value="red">أحمر</option>
-            <option value="other">آخر</option>
-        </select>
-        <label for="woodType">نوع الخشب:</label>
-        <select id="woodType">
-            <option value="plywood">خشب مضغوط</option>
-            <option value="regular">عادي</option>
-        </select>
-        <label for="facadeType">نوع الواجهة:</label>
-        <select id="facadeType">
-            <option value="economy">اقتصادي</option>
-            <option value="simple">بسيط</option>
-            <option value="luxury">فاخر</option>
-            <option value="custom">مخصص</option>
-        </select>
-        <label><input type="checkbox" id="hasGarden"> حديقة</label>
-        <label><input type="checkbox" id="hasPool"> مسبح</label>
-        <label><input type="checkbox" id="hasHVAC"> تكييف مركزي</label>
-        <label><input type="checkbox" id="hasElevator"> مصعد</label>
-        <label><input type="checkbox" id="hasFence"> سياج</label>
+        <!-- معلومات المبنى -->
+        <div class="section">
+            <h3>معلومات المبنى</h3>
+            <label for="floors">عدد الطوابق:</label>
+            <input type="number" id="floors" required>
+            <label for="rooms">عدد الغرف:</label>
+            <input type="number" id="rooms" required>
+            <label for="bathrooms">عدد الحمامات:</label>
+            <input type="number" id="bathrooms" required>
+            <label for="groundFloorHeight">ارتفاع الطابق الأرضي (م):</label>
+            <input type="number" id="groundFloorHeight" step="0.01">
+            <label for="otherFloorsHeight">ارتفاع الطوابق الأخرى (م):</label>
+            <input type="number" id="otherFloorsHeight" step="0.01">
+            <label for="brickType">نوع الطوب:</label>
+            <select id="brickType">
+                <option value="yellow">أصفر</option>
+                <option value="red">أحمر</option>
+                <option value="other">آخر</option>
+            </select>
+            <label for="woodType">نوع الخشب:</label>
+            <select id="woodType">
+                <option value="plywood">خشب مضغوط</option>
+                <option value="regular">عادي</option>
+            </select>
+            <label for="facadeType">نوع الواجهة:</label>
+            <select id="facadeType">
+                <option value="economy">اقتصادي</option>
+                <option value="simple">بسيط</option>
+                <option value="luxury">فاخر</option>
+                <option value="custom">مخصص</option>
+            </select>
+            <label><input type="checkbox" id="hasGarden"> حديقة</label>
+            <label><input type="checkbox" id="hasPool"> مسبح</label>
+            <label><input type="checkbox" id="hasHVAC"> تكييف مركزي</label>
+            <label><input type="checkbox" id="hasElevator"> مصعد</label>
+            <label><input type="checkbox" id="hasFence"> سياج</label>
+        </div>
 
-        <!-- حقول الأسعار -->
-        <h3>الأسعار</h3>
-        <label for="flooringPrice">سعر الأرضيات (دينار):</label>
-        <input type="number" id="flooringPrice" step="0.01">
-        <label for="wallInstallationPrice">سعر تركيب الجدران (دينار):</label>
-        <input type="number" id="wallInstallationPrice" step="0.01">
-        <label for="wallPaintingPrice">سعر طلاء الجدران (دينار):</label>
-        <input type="number" id="wallPaintingPrice" step="0.01">
-        <label for="windowsDoorsPrice">سعر النوافذ والأبواب (دينار):</label>
-        <input type="number" id="windowsDoorsPrice" step="0.01">
-        <label for="stairsRailingPrice">سعر درابزين السلالم (دينار):</label>
-        <input type="number" id="stairsRailingPrice" step="0.01">
-        <label for="stairsRailingLength">طول درابزين السلالم (م):</label>
-        <input type="number" id="stairsRailingLength" step="0.01">
+        <!-- الأسعار -->
+        <div class="section">
+            <h3>الأسعار</h3>
+            <label for="flooringPrice">سعر الأرضيات (دينار):</label>
+            <input type="number" id="flooringPrice" step="0.01">
+            <label for="wallInstallationPrice">سعر تركيب الجدران (دينار):</label>
+            <input type="number" id="wallInstallationPrice" step="0.01">
+            <label for="wallPaintingPrice">سعر طلاء الجدران (دينار):</label>
+            <input type="number" id="wallPaintingPrice" step="0.01">
+            <label for="windowsDoorsPrice">سعر النوافذ والأبواب (دينار):</label>
+            <input type="number" id="windowsDoorsPrice" step="0.01">
+            <label for="stairsRailingPrice">سعر درابزين السلالم (دينار):</label>
+            <input type="number" id="stairsRailingPrice" step="0.01">
+            <label for="stairsRailingLength">طول درابزين السلالم (م):</label>
+            <input type="number" id="stairsRailingLength" step="0.01">
+        </div>
 
-        <!-- حقول اختيارية -->
-        <h3>معلومات إضافية (اختيارية)</h3>
-        <label><input type="checkbox" id="showOtherBrickInfo"> تفاصيل الطوب</label>
-        <div id="otherBrickInfo" class="hidden">
-            <label for="brickWidth">عرض الطوب (سم):</label>
-            <input type="number" id="brickWidth" step="0.01">
-            <label for="brickLength">طول الطوب (سم):</label>
-            <input type="number" id="brickLength" step="0.01">
-            <label for="brickHeight">ارتفاع الطوب (سم):</label>
-            <input type="number" id="brickHeight" step="0.01">
-            <label for="brickDensity">كثافة الطوب:</label>
-            <input type="number" id="brickDensity" step="0.01">
-        </div>
-        <label><input type="checkbox" id="showConcreteColumnsInfo"> حجم الخرسانة</label>
-        <div id="concreteColumnsInfo" class="hidden">
-            <label for="concreteVolume">حجم الخرسانة (م³):</label>
-            <input type="number" id="concreteVolume" step="0.01">
-        </div>
-        <label><input type="checkbox" id="showApartmentsInfo"> عدد الشقق</label>
-        <div id="apartmentsInfo" class="hidden">
-            <label for="apartmentsCount">عدد الشقق:</label>
-            <input type="number" id="apartmentsCount">
-        </div>
-        <label><input type="checkbox" id="showCustomFacadeInfo"> واجهة مخصصة</label>
-        <div id="customFacadeInfo" class="hidden">
-            <label for="facadeArea">مساحة الواجهة (م²):</label>
-            <input type="number" id="facadeArea" step="0.01">
-            <label for="facadePrice">سعر الواجهة (دينار):</label>
-            <input type="number" id="facadePrice" step="0.01">
-        </div>
-        <label><input type="checkbox" id="showInternalWallsInfo"> الجدران الداخلية</label>
-        <div id="internalWallsInfo" class="hidden">
-            <label for="internalWallsArea">مساحة الجدران الداخلية (م²):</label>
-            <input type="number" id="internalWallsArea" step="0.01">
-            <label for="internalWallsPrice">سعر الجدران الداخلية (دينار):</label>
-            <input type="number" id="internalWallsPrice" step="0.01">
-        </div>
-        <label><input type="checkbox" id="showBasementInfo"> القبو</label>
-        <div id="basementInfo" class="hidden">
-            <label for="basementFloors">عدد طوابق القبو:</label>
-            <input type="number" id="basementFloors">
-            <label for="basementCeilingArea">مساحة سقف القبو (م²):</label>
-            <input type="number" id="basementCeilingArea" step="0.01">
-            <label for="basementPrice">سعر القبو (دينار):</label>
-            <input type="number" id="basementPrice" step="0.01">
-        </div>
-        <label><input type="checkbox" id="showMapDetails"> تفاصيل الخريطة</label>
-        <div id="mapDetailsInfo" class="hidden">
-            <label for="totalRoofArea">إجمالي مساحة السقف (م²):</label>
-            <input type="number" id="totalRoofArea" step="0.01">
-            <label for="externalAreas">المساحات الخارجية (م²):</label>
-            <input type="number" id="externalAreas" step="0.01">
-            <label for="skylightsArea">مساحة المناور (م²):</label>
-            <input type="number" id="skylightsArea" step="0.01">
-            <label for="tiesLength">طول الروابط (م):</label>
-            <input type="number" id="tiesLength" step="0.01">
-            <label for="invertedBeams">العوارض المقلوبة (م):</label>
-            <input type="number" id="invertedBeams" step="0.01">
-            <label for="externalWalls24cm">الجدران الخارجية 24 سم (م²):</label>
-            <input type="number" id="externalWalls24cm" step="0.01">
-            <label for="internalWalls24cm">الجدران الداخلية 24 سم (م²):</label>
-            <input type="number" id="internalWalls24cm" step="0.01">
-            <label for="roofFenceLength">طول سياج السقف (م):</label>
-            <input type="number" id="roofFenceLength" step="0.01">
-            <label for="externalDoors">عدد الأبواب الخارجية:</label>
-            <input type="number" id="externalDoors">
-            <label for="internalDoors">عدد الأبواب الداخلية:</label>
-            <input type="number" id="internalDoors">
-            <label for="facadeWindowsDoorsArea">مساحة نوافذ وأبواب الواجهة (م²):</label>
-            <input type="number" id="facadeWindowsDoorsArea" step="0.01">
-            <label for="skylightWindowsDoorsArea">مساحة نوافذ وأبواب المناور (م²):</label>
-            <input type="number" id="skylightWindowsDoorsArea" step="0.01">
-            <label for="secondaryCeilingsArea">مساحة الأسقف الثانوية (م²):</label>
-            <input type="number" id="secondaryCeilingsArea" step="0.01">
-            <label for="decorativeWallsArea">مساحة الجدران الزخرفية (م²):</label>
-            <input type="number" id="decorativeWallsArea" step="0.01">
-            <label for="claddingWallsArea">مساحة جدران التكسية (م²):</label>
-            <input type="number" id="claddingWallsArea" step="0.01">
+        <!-- معلومات إضافية (اختيارية) -->
+        <div class="section">
+            <h3>معلومات إضافية (اختيارية)</h3>
+            <label><input type="checkbox" id="showOtherBrickInfo"> تفاصيل الطوب</label>
+            <div id="otherBrickInfo" class="hidden">
+                <label for="brickWidth">عرض الطوب (سم):</label>
+                <input type="number" id="brickWidth" step="0.01">
+                <label for="brickLength">طول الطوب (سم):</label>
+                <input type="number" id="brickLength" step="0.01">
+                <label for="brickHeight">ارتفاع الطوب (سم):</label>
+                <input type="number" id="brickHeight" step="0.01">
+                <label for="brickDensity">كثافة الطوب:</label>
+                <input type="number" id="brickDensity" step="0.01">
+            </div>
+            <label><input type="checkbox" id="showConcreteColumnsInfo"> حجم الخرسانة</label>
+            <div id="concreteColumnsInfo" class="hidden">
+                <label for="concreteVolume">حجم الخرسانة (م³):</label>
+                <input type="number" id="concreteVolume" step="0.01">
+            </div>
+            <label><input type="checkbox" id="showApartmentsInfo"> عدد الشقق</label>
+            <div id="apartmentsInfo" class="hidden">
+                <label for="apartmentsCount">عدد الشقق:</label>
+                <input type="number" id="apartmentsCount">
+            </div>
+            <label><input type="checkbox" id="showCustomFacadeInfo"> واجهة مخصصة</label>
+            <div id="customFacadeInfo" class="hidden">
+                <label for="facadeArea">مساحة الواجهة (م²):</label>
+                <input type="number" id="facadeArea" step="0.01">
+                <label for="facadePrice">سعر الواجهة (دينار):</label>
+                <input type="number" id="facadePrice" step="0.01">
+            </div>
+            <label><input type="checkbox" id="showInternalWallsInfo"> الجدران الداخلية</label>
+            <div id="internalWallsInfo" class="hidden">
+                <label for="internalWallsArea">مساحة الجدران الداخلية (م²):</label>
+                <input type="number" id="internalWallsArea" step="0.01">
+                <label for="internalWallsPrice">سعر الجدران الداخلية (دينار):</label>
+                <input type="number" id="internalWallsPrice" step="0.01">
+            </div>
+            <label><input type="checkbox" id="showBasementInfo"> القبو</label>
+            <div id="basementInfo" class="hidden">
+                <label for="basementFloors">عدد طوابق القبو:</label>
+                <input type="number" id="basementFloors">
+                <label for="basementCeilingArea">مساحة سقف القبو (م²):</label>
+                <input type="number" id="basementCeilingArea" step="0.01">
+                <label for="basementPrice">سعر القبو (دينار):</label>
+                <input type="number" id="basementPrice" step="0.01">
+            </div>
+            <label><input type="checkbox" id="showMapDetails"> تفاصيل الخريطة</label>
+            <div id="mapDetailsInfo" class="hidden">
+                <label for="totalRoofArea">إجمالي مساحة السقف (م²):</label>
+                <input type="number" id="totalRoofArea" step="0.01">
+                <label for="externalAreas">المساحات الخارجية (م²):</label>
+                <input type="number" id="externalAreas" step="0.01">
+                <label for="skylightsArea">مساحة المناور (م²):</label>
+                <input type="number" id="skylightsArea" step="0.01">
+                <label for="tiesLength">طول الروابط (م):</label>
+                <input type="number" id="tiesLength" step="0.01">
+                <label for="invertedBeams">العوارض المقلوبة (م):</label>
+                <input type="number" id="invertedBeams" step="0.01">
+                <label for="externalWalls24cm">الجدران الخارجية 24 سم (م²):</label>
+                <input type="number" id="externalWalls24cm" step="0.01">
+                <label for="internalWalls24cm">الجدران الداخلية 24 سم (م²):</label>
+                <input type="number" id="internalWalls24cm" step="0.01">
+                <label for="roofFenceLength">طول سياج السقف (م):</label>
+                <input type="number" id="roofFenceLength" step="0.01">
+                <label for="externalDoors">عدد الأبواب الخارجية:</label>
+                <input type="number" id="externalDoors">
+                <label for="internalDoors">عدد الأبواب الداخلية:</label>
+                <input type="number" id="internalDoors">
+                <label for="facadeWindowsDoorsArea">مساحة نوافذ وأبواب الواجهة (م²):</label>
+                <input type="number" id="facadeWindowsDoorsArea" step="0.01">
+                <label for="skylightWindowsDoorsArea">مساحة نوافذ وأبواب المناور (م²):</label>
+                <input type="number" id="skylightWindowsDoorsArea" step="0.01">
+                <label for="secondaryCeilingsArea">مساحة الأسقف الثانوية (م²):</label>
+                <input type="number" id="secondaryCeilingsArea" step="0.01">
+                <label for="decorativeWallsArea">مساحة الجدران الزخرفية (م²):</label>
+                <input type="number" id="decorativeWallsArea" step="0.01">
+                <label for="claddingWallsArea">مساحة جدران التكسية (م²):</label>
+                <input type="number" id="claddingWallsArea" step="0.01">
+            </div>
         </div>
 
         <button type="submit" id="submitBtn">إرسال</button>
@@ -375,7 +434,7 @@
 
                 // إرسال الطلب إلى الخادم
                 console.log('البيانات المرسلة:', JSON.stringify(cleanFormData, null, 2));
-                const response = await fetch('/api/process', {
+                const response = await fetch('https://your-vercel-site-name.vercel.app/api/process', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -448,13 +507,13 @@
 
         // دالة لإنشاء PDF من محتوى HTML
         async function generatePDFFromHTML() {
-            // تحميل مكتبات jsPDF و html2canvas ديناميكيًا
-            await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
-            await loadScript('https://html2canvas.hertzen.com/dist/html2canvas.min.js');
-
-            const { jsPDF } = window.jspdf;
-
             try {
+                // تحميل مكتبات jsPDF و html2canvas ديناميكيًا
+                await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
+                await loadScript('https://html2canvas.hertzen.com/dist/html2canvas.min.js');
+
+                const { jsPDF } = window.jspdf;
+
                 // تحديد العنصر المراد تحويله
                 const element = document.getElementById('pdfContent') || document.body;
 
