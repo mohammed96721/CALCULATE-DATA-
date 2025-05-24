@@ -24,8 +24,8 @@ export default async function handler(req, res) {
         const advancedImportEnd = performance.now();
         console.log(`استيراد advancedCalculate.js استغرق ${advancedImportEnd - advancedImportStart} ميلي ثانية`);
 
-        if (!routeCalculation) {
-            throw new Error('routeCalculation غير موجود');
+        if (!routeCalculation || typeof routeCalculation !== 'function') {
+            throw new Error('routeCalculation ليست دالة أو غير موجودة');
         }
 
         const routeStart = performance.now();
