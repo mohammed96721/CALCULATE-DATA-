@@ -8,7 +8,7 @@ const validateRequestData = (data) => {
             name: Joi.string().min(2).max(100).required()
                 .messages({
                     'string.empty': 'اسم الزبون مطلوب',
-                    'string.min': 'الاسم يجب أن يكون 3 أحرف على الأقل'
+                    'string.min': 'الاسم يجب أن يكون 2 أحرف على الأقل'
                 }),
             phone: Joi.string().pattern(/^[0-9]+$/).required()
                 .messages({
