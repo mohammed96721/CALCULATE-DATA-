@@ -1,36 +1,39 @@
-// server.js
 const express = require('express');
-const { routeCalculation } = require('./process');
+const cors = require('cors');
 const calculate = require('./calculate');
 const advancedCalculate = require('./advancedCalculate');
 
 const app = express();
-app.use(express.json());
+const port = process.env.PORT || 3000;
 
-app.post('/api/calculate', async (req, res) => {
-    try {
-        const inputs = req.body;
-        console.log('البيانات الواردة:', JSON.stringify(inputs, null, 2));
-        if (!inputs) {
-            throw new Error('البيانات المرسلة فارغة');
-        }
-        const { module, data } = routeCalculation(inputs);
-        console.log('الوجهة:', module);
-        let result;
-        if (module === 'advancedCalculate') {
-            result = await advancedCalculate.calculate(data);
-        } else {
-            result = await calculate.calculate(data);
-        }
-        console.log('النتيجة:', result);
-        res.json(result);
-    } catch (error) {
-        console.error('خطأ في معالجة الطلب:', error.stack);
-        res.status(500).json({ error: error.message });
-    }
+// Middleware لدعم JSON وCORS
+app.use(express.json());
+app.use(cors());
+
+// نقطة نهاية لمعالجة البيانات
+app.post('/api/process', (req, res) => {
+  try {
+    const data = req.body;
+    const hasMap = data.hasMap || false;
+
+    // توجيه البيانات بناءً على hasMap
+    const result = hasMap ? advancedCalculate.processAdvanced(data) : calculate.processBasic(data);
+
+    // إرجاع النتيجة
+    res.status(200).json({
+      success: true,
+      result: result
+    });
+  } catch (error) {
+    console.error('خطأ في الخادم:', error.message);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
 });
 
-app.use(express.static('public'));
-app.listen(3000, () => {
-    console.log('الخادم يعمل على http://localhost:3000');
+// تشغيل الخادم
+app.listen(port, () => {
+  console.log(`الخادم يعمل على http://localhost:${port}`);
 });
