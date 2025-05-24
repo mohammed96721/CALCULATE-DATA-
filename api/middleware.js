@@ -1,151 +1,77 @@
-const Joi = require('joi');
-const calculate = require('./calculate');
-const advancedCalculate = require('./advancedCalculate');
-
-const validateRequestData = (data) => {
-    const schema = Joi.object({
-        customer: Joi.object({
-            name: Joi.string().min(2).max(100).required()
-                .messages({
-                    'string.empty': 'اسم الزبون مطلوب',
-                    'string.min': 'الاسم يجب أن يكون 2 أحرف على الأقل'
-                }),
-            phone: Joi.string().pattern(/^[0-9]+$/).required()
-                .messages({
-                    'string.pattern.base': 'رقم الهاتف يجب أن يحتوي أرقامًا فقط'
-                })
-        }).required(),
-        location: Joi.object({
-            governorate: Joi.string().valid(
-                'baghdad', 'basra', 'najaf', 'karbala', 'erbil',
-                'sulaymaniyah', 'duhok', 'kirkuk', 'mosul', 'anbar',
-                'saladin', 'diyala', 'wasit', 'babil', 'qadisiyah',
-                'muthanna', 'dhi_qar', 'maysan'
-            ).required(),
-            area: Joi.string().min(2).max(100).required()
-        }).required(),
-        land: Joi.object({
-            area: Joi.number().positive().required(),
-            facadeWidth: Joi.number().positive().optional()
-        }).required(),
-        building: Joi.object({
-            floors: Joi.number().integer().min(1).max(50).required(),
-            rooms: Joi.number().integer().min(1).required(),
-            bathrooms: Joi.number().integer().min(1).required(),
-            groundFloorHeight: Joi.number().positive().optional(),
-            otherFloorsHeight: Joi.number().positive().optional(),
-            brickType: Joi.string().valid('yellow', 'red', 'other').optional(),
-            woodType: Joi.string().valid('plywood', 'regular').optional(),
-            facadeType: Joi.string().valid('economy', 'simple', 'luxury', 'custom').optional(),
-            hasGarden: Joi.boolean().default(false),
-            hasPool: Joi.boolean().default(false),
-            hasHVAC: Joi.boolean().default(false),
-            hasElevator: Joi.boolean().default(false),
-            hasFence: Joi.boolean().default(false),
-            brickDetails: Joi.object({
-                width: Joi.number().positive().optional(),
-                length: Joi.number().positive().optional(),
-                height: Joi.number().positive().optional(),
-                density: Joi.number().positive().optional()
-            }).optional(),
-            concreteVolume: Joi.number().positive().optional(),
-            apartmentsCount: Joi.number().integer().min(0).optional(),
-            customFacade: Joi.object({
-                area: Joi.number().positive().optional(),
-                price: Joi.number().positive().optional()
-            }).optional(),
-            internalWalls: Joi.object({
-                area: Joi.number().positive().optional(),
-                price: Joi.number().positive().optional()
-            }).optional(),
-            basement: Joi.object({
-                floors: Joi.number().integer().min(0).optional(),
-                ceilingArea: Joi.number().positive().optional(),
-                price: Joi.number().positive().optional()
-            }).optional()
-        }).required(),
-        prices: Joi.object({
-            flooring: Joi.number().positive().optional(),
-            wallInstallation: Joi.number().positive().optional(),
-            wallPainting: Joi.number().positive().optional(),
-            windowsDoors: Joi.number().positive().optional(),
-            stairsRailing: Joi.number().positive().default(0)
-        }).optional(),
-        stairsRailingLength: Joi.number().min(0).default(0),
-        hasMap: Joi.boolean().default(false),
-        technicalDetails: Joi.when('hasMap', {
-            is: true,
-            then: Joi.object({
-                totalRoofArea: Joi.number().positive().optional(),
-                externalAreas: Joi.number().positive().optional(),
-                skylightsArea: Joi.number().positive().optional(),
-                tiesLength: Joi.number().positive().optional(),
-                invertedBeams: Joi.number().positive().optional(),
-                externalWalls24cm: Joi.number().positive().optional(),
-                internalWalls24cm: Joi.number().positive().optional(),
-                roofFenceLength: Joi.number().positive().optional(),
-                externalDoors: Joi.number().integer().min(0).optional(),
-                internalDoors: Joi.number().integer().min(0).optional(),
-                facadeWindowsDoorsArea: Joi.number().positive().optional(),
-                skylightWindowsDoorsArea: Joi.number().positive().optional(),
-                secondaryCeilingsArea: Joi.number().positive().optional(),
-                decorativeWallsArea: Joi.number().positive().optional(),
-                claddingWallsArea: Joi.number().positive().optional()
-            }).optional(),
-            otherwise: Joi.forbidden()
-        })
-    }).options({ abortEarly: false });
-
-    const { error } = schema.validate(data);
-    if (error) {
-        const errors = error.details.map(err => err.message);
-        throw new Error(`خطأ في التحقق من البيانات: ${errors.join(' | ')}`);
-    }
-};
-
-module.exports = (req, res, next) => {
+module.exports = function validateInput(req, res, next) {
     try {
-        if (!req.body || Object.keys(req.body).length === 0) {
-            console.error('البيانات المستلمة فارغة:', {
-                ip: req.ip,
-                timestamp: new Date().toISOString()
-            });
+        const data = req.body;
+
+        // التحقق من الحقول الأساسية
+        if (!data.customer || !data.customer.name || !data.customer.phone) {
             return res.status(400).json({
                 success: false,
-                error: 'البيانات المرسلة فارغة أو غير صالحة',
-                timestamp: new Date().toISOString()
+                error: 'معلومات الزبون (الاسم ورقم الهاتف) مطلوبة'
             });
         }
-
-        console.log('البيانات المستلمة في middleware:', JSON.stringify(req.body, null, 2));
-        validateRequestData(req.body);
-        req.handler = req.body.hasMap ? advancedCalculate : calculate;
-
-        if (!req.handler) {
-            console.error('خطأ: لم يتم تعيين المعالج', {
-                ip: req.ip,
-                body: req.body,
-                timestamp: new Date().toISOString()
-            });
-            return res.status(500).json({
+        if (!data.location || !data.location.governorate || !data.location.area) {
+            return res.status(400).json({
                 success: false,
-                error: 'لم يتم تعيين معالج الطلب',
-                timestamp: new Date().toISOString()
+                error: 'معلومات الموقع (المحافظة والمنطقة) مطلوبة'
+            });
+        }
+        if (!data.land || !data.land.area || !data.land.facadeWidth) {
+            return res.status(400).json({
+                success: false,
+                error: 'مواصفات الأرض (المساحة وعرض الواجهة) مطلوبة'
+            });
+        }
+        if (!data.building || !data.building.floors || !data.building.rooms || !data.building.bathrooms) {
+            return res.status(400).json({
+                success: false,
+                error: 'مواص fand.building || !data.building.floors || !data.building.rooms || !data.building.bathrooms) {
+            return res.status(400).json({
+                success: false,
+                error: 'مواصفات البناء (الطوابق، الغرف، الحمامات) مطلوبة'
+            });
+        }
+        if (!data.prices || !data.prices.flooring || !data.prices.wallInstallation || !data.prices.wallPainting || !data.prices.windowsDoors) {
+            return res.status(400).json({
+                success: false,
+                error: 'أسعار التشطيبات مطلوبة'
             });
         }
 
+        // التحقق من القيم الرقمية
+        if (data.land.area <= 0 || data.land.facadeWidth <= 0) {
+            return res.status(400).json({
+                success: false,
+                error: 'مساحة الأرض وعرض الواجهة يجب أن تكونا أكبر من 0'
+            });
+        }
+        if (data.building.floors < 1 || data.building.rooms < 1 || data.building.bathrooms < 1) {
+            return res.status(400).json({
+                success: false,
+                error: 'عدد الطوابق، الغرف، والحمامات يجب أن تكون 1 أو أكثر'
+            });
+        }
+        if (data.prices.flooring <= 0 || data.prices.wallInstallation <= 0 || data.prices.wallPainting <= 0 || data.prices.windowsDoors <= 0) {
+            return res.status(400).json({
+                success: false,
+                error: 'أسعار التشطيبات يجب أن تكون أكبر من 0'
+            });
+        }
+
+        // التحقق من التفاصيل الفنية إذا كان hasMap: true
+        if (data.hasMap && (!data.technicalDetails || !data.technicalDetails.totalRoofArea)) {
+            return res.status(400).json({
+                success: false,
+                error: 'مساحة السقوف الحقيقية مطلوبة عند وجود خريطة'
+            });
+        }
+
+        // تمرير التحكم إلى المعالج التالي
         next();
     } catch (error) {
-        console.error('فشل التحقق:', {
-            ip: req.ip,
-            error: error.message,
-            body: req.body,
-            timestamp: new Date().toISOString()
-        });
-        res.status(400).json({
+        console.error('خطأ في التحقق:', error.message);
+        res.status(500).json({
             success: false,
-            error: error.message,
-            timestamp: new Date().toISOString()
+            error: `خطأ داخلي في التحقق: ${error.message}`
         });
     }
 };
