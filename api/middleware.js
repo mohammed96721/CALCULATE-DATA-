@@ -1,6 +1,7 @@
 const Joi = require('joi');
+const calculate = require('./api/calculate');
+const advancedCalculate = require('./api/advancedCalculate');
 
-// تحقق من صحة البيانات (Joi Validation)
 const validateRequestData = (data) => {
     const schema = Joi.object({
         customer: Joi.object({
@@ -70,23 +71,29 @@ const validateRequestData = (data) => {
             windowsDoors: Joi.number().positive().required(),
             stairsRailing: Joi.number().positive().default(0)
         }).required(),
-        technicalDetails: Joi.object({
-            totalRoofArea: Joi.number().positive(),
-            externalAreas: Joi.number().positive(),
-            skylightsArea: Joi.number().positive(),
-            tiesLength: Joi.number().positive(),
-            invertedBeams: Joi.number().positive(),
-            externalWalls24cm: Joi.number().positive(),
-            internalWalls24cm: Joi.number().positive(),
-            roofFenceLength: Joi.number().positive(),
-            externalDoors: Joi.number().integer().min(0),
-            internalDoors: Joi.number().integer().min(0),
-            facadeWindowsDoorsArea: Joi.number().positive(),
-            skylightWindowsDoorsArea: Joi.number().positive(),
-            secondaryCeilingsArea: Joi.number().positive(),
-            decorativeWallsArea: Joi.number().positive(),
-            claddingWallsArea: Joi.number().positive()
-        }).optional()
+        stairsRailingLength: Joi.number().min(0).default(0),
+        hasMap: Joi.boolean().required(),
+        technicalDetails: Joi.when('hasMap', {
+            is: true,
+            then: Joi.object({
+                totalRoofArea: Joi.number().positive().required(),
+                externalAreas: Joi.number().positive().required(),
+                skylightsArea: Joi.number().positive().required(),
+                tiesLength: Joi.number().positive().required(),
+                invertedBeams: Joi.number().positive().required(),
+                externalWalls24cm: Joi.number().positive().required(),
+                internalWalls24cm: Joi.number().positive().required(),
+                roofFenceLength: Joi.number().positive().required(),
+                externalDoors: Joi.number().integer().min(0).required(),
+                internalDoors: Joi.number().integer().min(0).required(),
+                facadeWindowsDoorsArea: Joi.number().positive().required(),
+                skylightWindowsDoorsArea: Joi.number().positive().required(),
+                secondaryCeilingsArea: Joi.number().positive().required(),
+                decorativeWallsArea: Joi.number().positive().required(),
+                claddingWallsArea: Joi.number().positive().required()
+            }).required(),
+            otherwise: Joi.forbidden()
+        })
     }).options({ abortEarly: false });
 
     const { error } = schema.validate(data);
@@ -96,12 +103,14 @@ const validateRequestData = (data) => {
     }
 };
 
-// Middleware الرئيسي
 module.exports = (req, res, next) => {
     try {
-        // التحقق من صحة البيانات فقط
+        // التحقق من البيانات
         validateRequestData(req.body);
-        
+
+        // تحديد المعالج بناءً على hasMap
+        req.handler = req.body.hasMap ? advancedCalculate : calculate;
+
         next();
         
     } catch (error) {
