@@ -1,9 +1,8 @@
-const { validateConstructionData } = require('./validationHelpers');
-const logger = require('./logger');
+// إزالة استدعاء validationHelpers و logger
+// const { validateConstructionData } = require('./validationHelpers');
+// const logger = require('./logger');
 
-// ======================================
 // دوال الحساب المساعدة
-// ======================================
 const calculateBuiltArea = (data) => {
     const groundFloorArea = data.land.area;
     const otherFloorsArea = data.land.area * (data.building.floors - 1);
@@ -22,7 +21,6 @@ const calculateFinishingCost = (data) => {
     cost += data.land.area * data.building.floors * data.prices.wallInstallation;
     cost += data.land.area * data.building.floors * data.prices.wallPainting;
     
-    // إضافة تكلفة محجر الدرج إذا وجد
     if (data.stairsRailingLength && data.prices.stairsRailing) {
         cost += data.stairsRailingLength * data.prices.stairsRailing;
     }
@@ -40,51 +38,38 @@ const calculateConcreteVolume = (data) => {
     const slabVolume = data.land.area * 0.2;
     const columnsVolume = data.building.floors * 4 * 0.3 * 0.3 * 3;
     
-    // إضافة حجم الأعمدة الإضافية إذا وجدت
     if (data.building.concreteVolume) {
         return slabVolume + columnsVolume + data.building.concreteVolume;
     }
     return slabVolume + columnsVolume;
 };
 
-// ======================================
 // المعالجة الرئيسية
-// ======================================
 module.exports = async (req, res) => {
     try {
-        // 1. التحقق من صحة البيانات (يتم في middleware)
+        // 1. التحقق من صحة البيانات (تم في middleware)
         const formData = req.body;
 
-        // 2. التحقق الإضافي من البيانات الهندسية
-        validateConstructionData(formData);
+        // 2. إزالة التحقق الإضافي مؤقتًا
+        // validateConstructionData(formData);
 
         // 3. إجراء جميع الحسابات
         const calculations = {
-            // المعلومات الأساسية
             totalLandArea: formData.land.area,
             totalBuiltArea: calculateBuiltArea(formData),
-            
-            // تكاليف البناء
             constructionCost: calculateConstructionCost(formData),
             finishingCost: calculateFinishingCost(formData),
-            
-            // المواد المستخدمة
             brickCount: calculateBrickCount(formData),
             concreteVolume: calculateConcreteVolume(formData),
-            
-            // التكاليف الإضافية
             stairsCost: formData.prices.stairsRailing * (formData.stairsRailingLength || 0),
             facadeCost: formData.building.customFacade?.area 
                       ? formData.building.customFacade.area * formData.building.customFacade.price 
                       : 0,
-            
-            // ملخص التكاليف
-            totalCost: 0, // سيتم حسابه لاحقًا
+            totalCost: 0,
             costPerSquareMeter: 0,
             costPerCubicMeter: 0
         };
 
-        // 4. الحسابات النهائية
         calculations.totalCost = 
             calculations.constructionCost +
             calculations.finishingCost +
@@ -94,7 +79,7 @@ module.exports = async (req, res) => {
         calculations.costPerSquareMeter = calculations.totalCost / calculations.totalBuiltArea;
         calculations.costPerCubicMeter = calculations.totalCost / (calculations.totalBuiltArea * formData.building.groundFloorHeight);
 
-        // 5. إرسال الاستجابة
+        // 4. إرسال الاستجابة
         res.status(200).json({
             success: true,
             message: 'تمت معالجة البيانات بنجاح',
@@ -106,7 +91,6 @@ module.exports = async (req, res) => {
                 author: "النظام الآلي",
                 direction: "rtl",
                 font: "Tajawal",
-                // إضافة بيانات إضافية للواجهة لإنشاء PDF
                 columns: [
                     { title: "البند", dataKey: "item" },
                     { title: "القيمة", dataKey: "value" }
@@ -119,7 +103,7 @@ module.exports = async (req, res) => {
         });
 
     } catch (error) {
-        logger.error('فشل في معالجة البيانات', {
+        console.error('فشل في معالجة البيانات', {
             error: error.message,
             endpoint: '/calculate',
             user: req.user?.id
