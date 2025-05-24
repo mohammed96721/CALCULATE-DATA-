@@ -1,53 +1,22 @@
-const express = require('express');
-const cors = require('cors');
-const validateInput = require('./middleware');
-const calculate = require('./calculate');
-const advancedCalculate = require('./advancedCalculate');
+// process.js
+function routeCalculation(inputs) {
+    // التحقق مما إذا كان قسم التفاصيل الفنية مفتوحًا (غير مخفي)
+    const hasMap = inputs.hasMap;
 
-const app = express();
+    // إذا كان لديه خريطة، التحقق من إدخال البيانات في حقول التفاصيل الفنية
+    if (hasMap && inputs.technicalDetails) {
+        // التحقق مما إذا كانت هناك بيانات مدخلة في الحقول
+        const technicalDetails = inputs.technicalDetails;
+        const hasTechnicalData = Object.values(technicalDetails).some(value => value !== 0 && value !== '');
 
-// السماح بـ CORS لنطاق محدد
-app.use(cors({
-    origin: 'https://projects.vercel.app',
-    methods: ['POST'],
-    allowedHeaders: ['Content-Type']
-}));
-
-app.use(express.json());
-
-// تطبيق التحقق
-app.post('/', validateInput, (req, res) => {
-    try {
-        const data = req.body;
-
-        // تحديد دالة الحساب
-        req.handler = data.hasMap ? advancedCalculate : calculate;
-
-        // التحقق من وجود الدالة
-        if (typeof req.handler !== 'function') {
-            throw new Error('دالة الحساب غير صالحة');
+        if (hasTechnicalData) {
+            // إذا كان هناك بيانات، توجيه إلى advancedCalculate.js
+            return { module: 'advancedCalculate', data: inputs };
         }
-
-        // استدعاء دالة الحساب
-        const calculations = req.handler(data);
-
-        // التحقق من صحة النتائج
-        if (!calculations || typeof calculations.totalCost !== 'number') {
-            throw new Error('نتائج الحساب غير صالحة');
-        }
-
-        res.status(200).json({
-            success: true,
-            originalData: data,
-            calculations
-        });
-    } catch (error) {
-        console.error('خطأ في المعالجة:', error.message, error.stack);
-        res.status(500).json({
-            success: false,
-            error: `خطأ داخلي: ${error.message}`
-        });
     }
-});
 
-module.exports = app;
+    // إذا لم يكن هناك خريطة أو لم يتم إدخال بيانات، توجيه إلى calculate.js
+    return { module: 'calculate', data: inputs };
+}
+
+module.exports = { routeCalculation };
