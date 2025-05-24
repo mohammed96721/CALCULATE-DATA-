@@ -1,6 +1,6 @@
 const Joi = require('joi');
-const calculate = require('./api/calculate'); // تأكد من أن المسار صحيح
-const advancedCalculate = require('./api/advancedCalculate'); // تأكد من أن المسار صحيح
+const calculate = require('./calculate');
+const advancedCalculate = require('./advancedCalculate');
 
 const validateRequestData = (data) => {
     const schema = Joi.object({
@@ -26,72 +26,72 @@ const validateRequestData = (data) => {
         }).required(),
         land: Joi.object({
             area: Joi.number().positive().required(),
-            facadeWidth: Joi.number().positive().required()
+            facadeWidth: Joi.number().positive().optional()
         }).required(),
         building: Joi.object({
             floors: Joi.number().integer().min(1).max(50).required(),
             rooms: Joi.number().integer().min(1).required(),
             bathrooms: Joi.number().integer().min(1).required(),
-            groundFloorHeight: Joi.number().positive().required(),
-            otherFloorsHeight: Joi.number().positive().required(),
-            brickType: Joi.string().valid('yellow', 'red', 'other').required(),
-            woodType: Joi.string().valid('plywood', 'regular').required(),
-            facadeType: Joi.string().valid('economy', 'simple', 'luxury', 'custom').required(),
+            groundFloorHeight: Joi.number().positive().optional(),
+            otherFloorsHeight: Joi.number().positive().optional(),
+            brickType: Joi.string().valid('yellow', 'red', 'other').optional(),
+            woodType: Joi.string().valid('plywood', 'regular').optional(),
+            facadeType: Joi.string().valid('economy', 'simple', 'luxury', 'custom').optional(),
             hasGarden: Joi.boolean().default(false),
             hasPool: Joi.boolean().default(false),
             hasHVAC: Joi.boolean().default(false),
             hasElevator: Joi.boolean().default(false),
             hasFence: Joi.boolean().default(false),
             brickDetails: Joi.object({
-                width: Joi.number().positive(),
-                length: Joi.number().positive(),
-                height: Joi.number().positive(),
-                density: Joi.number().positive()
+                width: Joi.number().positive().optional(),
+                length: Joi.number().positive().optional(),
+                height: Joi.number().positive().optional(),
+                density: Joi.number().positive().optional()
             }).optional(),
             concreteVolume: Joi.number().positive().optional(),
             apartmentsCount: Joi.number().integer().min(0).optional(),
             customFacade: Joi.object({
-                area: Joi.number().positive(),
-                price: Joi.number().positive()
+                area: Joi.number().positive().optional(),
+                price: Joi.number().positive().optional()
             }).optional(),
             internalWalls: Joi.object({
-                area: Joi.number().positive(),
-                price: Joi.number().positive()
+                area: Joi.number().positive().optional(),
+                price: Joi.number().positive().optional()
             }).optional(),
             basement: Joi.object({
-                floors: Joi.number().integer().min(0),
-                ceilingArea: Joi.number().positive(),
-                price: Joi.number().positive()
+                floors: Joi.number().integer().min(0).optional(),
+                ceilingArea: Joi.number().positive().optional(),
+                price: Joi.number().positive().optional()
             }).optional()
         }).required(),
         prices: Joi.object({
-            flooring: Joi.number().positive().required(),
-            wallInstallation: Joi.number().positive().required(),
-            wallPainting: Joi.number().positive().required(),
-            windowsDoors: Joi.number().positive().required(),
+            flooring: Joi.number().positive().optional(),
+            wallInstallation: Joi.number().positive().optional(),
+            wallPainting: Joi.number().positive().optional(),
+            windowsDoors: Joi.number().positive().optional(),
             stairsRailing: Joi.number().positive().default(0)
-        }).required(),
+        }).optional(),
         stairsRailingLength: Joi.number().min(0).default(0),
-        hasMap: Joi.boolean().required(),
+        hasMap: Joi.boolean().default(false),
         technicalDetails: Joi.when('hasMap', {
             is: true,
             then: Joi.object({
-                totalRoofArea: Joi.number().positive().required(),
-                externalAreas: Joi.number().positive().required(),
-                skylightsArea: Joi.number().positive().required(),
-                tiesLength: Joi.number().positive().required(),
-                invertedBeams: Joi.number().positive().required(),
-                externalWalls24cm: Joi.number().positive().required(),
-                internalWalls24cm: Joi.number().positive().required(),
-                roofFenceLength: Joi.number().positive().required(),
-                externalDoors: Joi.number().integer().min(0).required(),
-                internalDoors: Joi.number().integer().min(0).required(),
-                facadeWindowsDoorsArea: Joi.number().positive().required(),
-                skylightWindowsDoorsArea: Joi.number().positive().required(),
-                secondaryCeilingsArea: Joi.number().positive().required(),
-                decorativeWallsArea: Joi.number().positive().required(),
-                claddingWallsArea: Joi.number().positive().required()
-            }).required(),
+                totalRoofArea: Joi.number().positive().optional(),
+                externalAreas: Joi.number().positive().optional(),
+                skylightsArea: Joi.number().positive().optional(),
+                tiesLength: Joi.number().positive().optional(),
+                invertedBeams: Joi.number().positive().optional(),
+                externalWalls24cm: Joi.number().positive().optional(),
+                internalWalls24cm: Joi.number().positive().optional(),
+                roofFenceLength: Joi.number().positive().optional(),
+                externalDoors: Joi.number().integer().min(0).optional(),
+                internalDoors: Joi.number().integer().min(0).optional(),
+                facadeWindowsDoorsArea: Joi.number().positive().optional(),
+                skylightWindowsDoorsArea: Joi.number().positive().optional(),
+                secondaryCeilingsArea: Joi.number().positive().optional(),
+                decorativeWallsArea: Joi.number().positive().optional(),
+                claddingWallsArea: Joi.number().positive().optional()
+            }).optional(),
             otherwise: Joi.forbidden()
         })
     }).options({ abortEarly: false });
@@ -105,7 +105,6 @@ const validateRequestData = (data) => {
 
 module.exports = (req, res, next) => {
     try {
-        // التحقق من وجود البيانات في الطلب
         if (!req.body || Object.keys(req.body).length === 0) {
             console.error('البيانات المستلمة فارغة:', {
                 ip: req.ip,
@@ -118,16 +117,10 @@ module.exports = (req, res, next) => {
             });
         }
 
-        // تسجيل البيانات المستلمة لتصحيح الأخطاء
         console.log('البيانات المستلمة في middleware:', JSON.stringify(req.body, null, 2));
-
-        // التحقق من البيانات
         validateRequestData(req.body);
-
-        // تحديد المعالج بناءً على hasMap
         req.handler = req.body.hasMap ? advancedCalculate : calculate;
 
-        // التحقق من أن المعالج تم تعيينه بشكل صحيح
         if (!req.handler) {
             console.error('خطأ: لم يتم تعيين المعالج', {
                 ip: req.ip,
