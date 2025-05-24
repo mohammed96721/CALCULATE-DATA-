@@ -15,12 +15,12 @@ export default async function handler(req, res) {
         console.log(`استيراد routeCalculation.js استغرق ${importEnd - importStart} ميلي ثانية`);
 
         const calculateImportStart = performance.now();
-        const calculateModule = await import('../calculate.js');
+        const calculateModule = await import('./calculate.js');
         const calculateImportEnd = performance.now();
         console.log(`استيراد calculate.js استغرق ${calculateImportEnd - calculateImportStart} ميلي ثانية`);
 
         const advancedImportStart = performance.now();
-        const advancedCalculateModule = await import('../advancedCalculate.js');
+        const advancedCalculateModule = await import('./advancedCalculate.js');
         const advancedImportEnd = performance.now();
         console.log(`استيراد advancedCalculate.js استغرق ${advancedImportEnd - advancedImportStart} ميلي ثانية`);
 
