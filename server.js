@@ -1,78 +1,36 @@
+// server.js
 const express = require('express');
-const serverless = require('serverless-http');
-const cors = require('cors');
-const dotenv = require('dotenv');
-const middleware = require('./middleware');
+const { routeCalculation } = require('./process');
+const calculate = require('./calculate');
+const advancedCalculate = require('./advancedCalculate');
 
-dotenv.config();
 const app = express();
-
-// إعدادات CORS للسماح بالطلبات من الواجهة الأمامية
-app.use(cors({
-    origin: process.env.NODE_ENV === 'production' ? 'https://your-site-name.netlify.app' : '*',
-    methods: ['POST'],
-    allowedHeaders: ['Content-Type']
-}));
-
-// تحليل جسم الطلبات كـ JSON
 app.use(express.json());
 
-// تسجيل الطلبات الواردة لتصحيح الأخطاء
-app.use((req, res, next) => {
-    console.log(`طلب وارد: ${req.method} ${req.url}`, {
-        body: req.body,
-        ip: req.ip,
-        timestamp: new Date().toISOString()
-    });
-    next();
-});
-
-// نقطة النهاية لمعالجة البيانات
-app.post('/api/process', middleware, (req, res) => {
+app.post('/api/calculate', async (req, res) => {
     try {
-        if (!req.handler) {
-            console.error('خطأ: لم يتم تحديد المعالج', {
-                ip: req.ip,
-                body: req.body,
-                timestamp: new Date().toISOString()
-            });
-            return res.status(500).json({
-                success: false,
-                error: 'لم يتم تحديد معالج الطلب',
-                timestamp: new Date().toISOString()
-            });
+        const inputs = req.body;
+        console.log('البيانات الواردة:', JSON.stringify(inputs, null, 2));
+        if (!inputs) {
+            throw new Error('البيانات المرسلة فارغة');
         }
-
-        console.log('تمرير الطلب إلى المعالج:', req.body.hasMap ? 'advancedCalculate' : 'calculate');
-        req.handler(req, res);
+        const { module, data } = routeCalculation(inputs);
+        console.log('الوجهة:', module);
+        let result;
+        if (module === 'advancedCalculate') {
+            result = await advancedCalculate.calculate(data);
+        } else {
+            result = await calculate.calculate(data);
+        }
+        console.log('النتيجة:', result);
+        res.json(result);
     } catch (error) {
-        console.error('فشل في معالجة الطلب:', {
-            ip: req.ip,
-            error: error.message,
-            body: req.body,
-            timestamp: new Date().toISOString()
-        });
-        res.status(500).json({
-            success: false,
-            error: `خطأ داخلي في الخادم: ${error.message}`,
-            timestamp: new Date().toISOString()
-        });
+        console.error('خطأ في معالجة الطلب:', error.stack);
+        res.status(500).json({ error: error.message });
     }
 });
 
-// معالجة الأخطاء العامة
-app.use((err, req, res, next) => {
-    console.error('خطأ عام في الخادم:', {
-        error: err.message,
-        stack: process.env.NODE_ENV === 'development' ? err.stack : undefined,
-        ip: req.ip,
-        timestamp: new Date().toISOString()
-    });
-    res.status(500).json({
-        success: false,
-        error: 'حدث خطأ غير متوقع في الخادم',
-        timestamp: new Date().toISOString()
-    });
+app.use(express.static('public'));
+app.listen(3000, () => {
+    console.log('الخادم يعمل على http://localhost:3000');
 });
-
-module.exports.handler = serverless(app);
