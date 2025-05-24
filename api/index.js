@@ -9,16 +9,10 @@ async function handleRequest(request) {
             const inputs = await request.json();
             console.log('البيانات الواردة:', JSON.stringify(inputs, null, 2));
 
-            // التحقق من استيراد الملفات
-            let routeCalculation, calculateModule, advancedCalculateModule;
-            try {
-                routeCalculation = require('./process').routeCalculation;
-                calculateModule = require('./calculate');
-                advancedCalculateModule = require('./advancedCalculate');
-            } catch (error) {
-                console.error('خطأ في استيراد الملفات:', error);
-                throw new Error(`فشل في استيراد الملفات: ${error.message}`);
-            }
+            // استيراد الدوال
+            const routeCalculation = (await import('./process.js')).default;
+            const calculateModule = await import('./calculate.js');
+            const advancedCalculateModule = await import('./advancedCalculate.js');
 
             // التحقق من وجود routeCalculation
             if (!routeCalculation) {
@@ -30,15 +24,15 @@ async function handleRequest(request) {
 
             let result;
             if (module === 'advancedCalculate') {
-                if (!advancedCalculateModule.calculate) {
+                if (!advancedCalculateModule.default.calculate) {
                     throw new Error('دالة calculate غير موجودة في advancedCalculate');
                 }
-                result = await advancedCalculateModule.calculate(data);
+                result = await advancedCalculateModule.default.calculate(data);
             } else {
-                if (!calculateModule.calculate) {
+                if (!calculateModule.default.calculate) {
                     throw new Error('دالة calculate غير موجودة في calculate');
                 }
-                result = await calculateModule.calculate(data);
+                result = await calculateModule.default.calculate(data);
             }
 
             console.log('النتيجة:', result);
