@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <script src="https://cdn.jsdelivr.net/npm/jssha@3.2.0/dist/sha.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"> 
            <!-- مكتبة jsPDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -940,22 +939,12 @@
             };
         }
 
-        // إنشاء التوقيع الرقمي
-        const signatureSecret = "your_signature_secret_here"; // استبدل بالقيمة الحقيقية
-        const shaObj = new jsSHA("SHA-256", "TEXT");
-        shaObj.update(JSON.stringify(formData));
-        const signature = shaObj.getHash("HEX");
-
-        // إضافة التوكن (يجب الحصول عليه من عملية تسجيل دخول)
-        const token = "your_jwt_token_here"; // استبدل بالتوكن الحقيقي
-
+       
         // إرسال الطلب إلى API
         const response = await fetch('/api/calculate', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`,
-                'x-signature': signature
             },
             body: JSON.stringify(formData)
         });
