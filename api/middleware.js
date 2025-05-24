@@ -5,7 +5,7 @@ const advancedCalculate = require('./api/advancedCalculate');
 const validateRequestData = (data) => {
     const schema = Joi.object({
         customer: Joi.object({
-            name: Joi.string().min(3).max(100).required()
+            name: Joi.string().min(2).max(100).required()
                 .messages({
                     'string.empty': 'اسم الزبون مطلوب',
                     'string.min': 'الاسم يجب أن يكون 3 أحرف على الأقل'
