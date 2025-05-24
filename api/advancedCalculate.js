@@ -1,10 +1,9 @@
-// advancedCalculate.js
 function processAdvanced(data) {
-  // للاختبار: إرجاع نفس البيانات بدون معالجة
+  console.log('معالجة في advancedCalculate.js:', data); // تسجيل
   return {
     message: 'معالجة تفصيلية من advancedCalculate.js',
     inputData: data,
-    totalCost: 0 // قيمة وهمية للاختبار
+    totalCost: 0
   };
 }
 
