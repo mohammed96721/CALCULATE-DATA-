@@ -1,4 +1,3 @@
-// إزالة استدعاء validationHelpers و logger
 const calculateBuiltArea = (data) => {
     const groundFloorArea = data.land.area;
     const otherFloorsArea = data.land.area * (data.building.floors - 1);
@@ -40,10 +39,16 @@ const calculateConcreteVolume = (data) => {
     return slabVolume + columnsVolume;
 };
 
-// المعالجة الرئيسية
 module.exports = async (req, res) => {
     try {
         const formData = req.body;
+
+        if (formData.hasMap) {
+            return res.status(400).json({
+                success: false,
+                error: 'البيانات الفنية يجب أن تُعالج في /api/advanced-calculate'
+            });
+        }
 
         const calculations = {
             totalLandArea: formData.land.area,
@@ -72,12 +77,12 @@ module.exports = async (req, res) => {
 
         res.status(200).json({
             success: true,
-            message: 'تمت معالجة البيانات بنجاح',
+            message: 'تمت معالجة البيانات الأساسية بنجاح',
             originalData: formData,
             calculations,
             timestamp: new Date().toISOString(),
             pdfOptions: {
-                title: "تقرير تكاليف البناء",
+                title: "تقرير تكاليف البناء (تقدير أساسي)",
                 author: "النظام الآلي",
                 direction: "rtl",
                 font: "Tajawal",
@@ -93,7 +98,7 @@ module.exports = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('فشل في معالجة البيانات', {
+        console.error('فشل في معالجة البيانات الأساسية', {
             error: error.message,
             endpoint: '/calculate',
             user: req.user?.id
