@@ -1,19 +1,25 @@
-const calculate = require('./calculate'); // نفس المجلد (api/)
-const advancedCalculate = require('./advancedCalculate'); // نفس المجلد (api/)
+// api/process.js
+const calculate = require('./calculate');
+const advancedCalculate = require('./advancedCalculate');
 
-function processData(data) {
+// يجب أن يكون التصدير الافتراضي دالة (لتوافق مع Vercel)
+export default async function handler(req, res) {
   try {
-    console.log('البيانات في process.js:', data); // تسجيل
+    const data = req.body;
+    console.log('البيانات المستلمة:', data);
+
     if (!data || typeof data !== 'object') {
       throw new Error('البيانات غير صالحة');
     }
+
     const hasMap = data.hasMap || false;
-    console.log('hasMap:', hasMap); // تسجيل
-    return hasMap ? advancedCalculate.processAdvanced(data) : calculate.processBasic(data);
+    const result = hasMap 
+      ? advancedCalculate.processAdvanced(data) 
+      : calculate.processBasic(data);
+
+    res.status(200).json({ success: true, result });
   } catch (error) {
-    console.error('خطأ في process.js:', error.stack);
-    throw new Error(`خطأ في توجيه البيانات: ${error.message}`);
+    console.error('حدث خطأ:', error);
+    res.status(500).json({ error: error.message });
   }
 }
-
-module.exports = { processData };
