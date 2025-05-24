@@ -1,8 +1,4 @@
 // إزالة استدعاء validationHelpers و logger
-// const { validateConstructionData } = require('./validationHelpers');
-// const logger = require('./logger');
-
-// دوال الحساب المساعدة
 const calculateBuiltArea = (data) => {
     const groundFloorArea = data.land.area;
     const otherFloorsArea = data.land.area * (data.building.floors - 1);
@@ -47,13 +43,8 @@ const calculateConcreteVolume = (data) => {
 // المعالجة الرئيسية
 module.exports = async (req, res) => {
     try {
-        // 1. التحقق من صحة البيانات (تم في middleware)
         const formData = req.body;
 
-        // 2. إزالة التحقق الإضافي مؤقتًا
-        // validateConstructionData(formData);
-
-        // 3. إجراء جميع الحسابات
         const calculations = {
             totalLandArea: formData.land.area,
             totalBuiltArea: calculateBuiltArea(formData),
@@ -79,7 +70,6 @@ module.exports = async (req, res) => {
         calculations.costPerSquareMeter = calculations.totalCost / calculations.totalBuiltArea;
         calculations.costPerCubicMeter = calculations.totalCost / (calculations.totalBuiltArea * formData.building.groundFloorHeight);
 
-        // 4. إرسال الاستجابة
         res.status(200).json({
             success: true,
             message: 'تمت معالجة البيانات بنجاح',
