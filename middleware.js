@@ -1,6 +1,6 @@
 const Joi = require('joi');
-const calculate = require('./api/calculate');
-const advancedCalculate = require('./api/advancedCalculate');
+const calculate = require('./api/calculate'); // تأكد من أن المسار صحيح
+const advancedCalculate = require('./api/advancedCalculate'); // تأكد من أن المسار صحيح
 
 const validateRequestData = (data) => {
     const schema = Joi.object({
@@ -99,28 +99,57 @@ const validateRequestData = (data) => {
     const { error } = schema.validate(data);
     if (error) {
         const errors = error.details.map(err => err.message);
-        throw new Error(errors.join(' | '));
+        throw new Error(`خطأ في التحقق من البيانات: ${errors.join(' | ')}`);
     }
 };
 
 module.exports = (req, res, next) => {
     try {
+        // التحقق من وجود البيانات في الطلب
+        if (!req.body || Object.keys(req.body).length === 0) {
+            console.error('البيانات المستلمة فارغة:', {
+                ip: req.ip,
+                timestamp: new Date().toISOString()
+            });
+            return res.status(400).json({
+                success: false,
+                error: 'البيانات المرسلة فارغة أو غير صالحة',
+                timestamp: new Date().toISOString()
+            });
+        }
+
+        // تسجيل البيانات المستلمة لتصحيح الأخطاء
+        console.log('البيانات المستلمة في middleware:', JSON.stringify(req.body, null, 2));
+
         // التحقق من البيانات
         validateRequestData(req.body);
 
         // تحديد المعالج بناءً على hasMap
         req.handler = req.body.hasMap ? advancedCalculate : calculate;
 
+        // التحقق من أن المعالج تم تعيينه بشكل صحيح
+        if (!req.handler) {
+            console.error('خطأ: لم يتم تعيين المعالج', {
+                ip: req.ip,
+                body: req.body,
+                timestamp: new Date().toISOString()
+            });
+            return res.status(500).json({
+                success: false,
+                error: 'لم يتم تعيين معالج الطلب',
+                timestamp: new Date().toISOString()
+            });
+        }
+
         next();
-        
     } catch (error) {
         console.error('فشل التحقق:', {
             ip: req.ip,
             error: error.message,
-            body: req.body
+            body: req.body,
+            timestamp: new Date().toISOString()
         });
-        
-        res.status(400).json({ 
+        res.status(400).json({
             success: false,
             error: error.message,
             timestamp: new Date().toISOString()
