@@ -10,7 +10,6 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// مسار مشترك يستخدم المعالج المحدد في middleware
 app.post('/api/process', middleware, (req, res) => {
     if (!req.handler) {
         return res.status(500).json({
