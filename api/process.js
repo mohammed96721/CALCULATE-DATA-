@@ -6,7 +6,7 @@ const middleware = require('./middleware');
 dotenv.config();
 const app = express();
 
-// إعدادات CORS
+// إعدادات CORS للسماح بالطلبات من الواجهة الأمامية
 app.use(cors({
     origin: process.env.NODE_ENV === 'production' ? 'https://your-vercel-site-name.vercel.app' : '*',
     methods: ['POST'],
@@ -16,17 +16,17 @@ app.use(cors({
 // تحليل جسم الطلبات كـ JSON
 app.use(express.json());
 
-// تسجيل الطلبات الواردة
+// تسجيل الطلبات الواردة لتصحيح الأخطاء
 app.use((req, res, next) => {
     console.log(`طلب وارد: ${req.method} ${req.url}`, {
-        body: req.body,
+        body: JSON.stringify(req.body, null, 2),
         ip: req.ip,
         timestamp: new Date().toISOString()
     });
     next();
 });
 
-// نقطة النهاية الرئيسية
+// نقطة النهاية لمعالجة البيانات
 app.post('/', middleware, (req, res) => {
     try {
         if (!req.handler) {
