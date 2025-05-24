@@ -944,7 +944,7 @@
         pdfWindow.print();
       };
     } catch (error) {
-      console.error('خطأ:', error);
+      console.error('خطأ في العميل:', error);
       document.getElementById('resultContent').innerHTML = `<p style="color: red;">خطأ: ${error.message}</p>`;
       document.getElementById('resultContainer').style.display = 'block';
     } finally {
