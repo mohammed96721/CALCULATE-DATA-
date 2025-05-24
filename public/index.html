@@ -956,7 +956,7 @@
             console.log('البيانات المرسلة:', JSON.stringify(inputs, null, 2));
 
             // إرسال البيانات إلى نقطة نهاية API
-            const response = await fetch('/api/calculate', {
+            const response = await fetch('/api/process', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(inputs)
