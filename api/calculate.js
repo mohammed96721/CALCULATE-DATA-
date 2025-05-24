@@ -1,3 +1,4 @@
+// calculate.js
 async function calculate(inputs) {
     try {
         if (!inputs) {
@@ -35,4 +36,6 @@ async function calculate(inputs) {
         throw new Error(`فشل في الحساب البسيط: ${error.message}`);
     }
 }
-module.exports = { calculate };
+
+// تصدير افتراضي
+export default { calculate };
