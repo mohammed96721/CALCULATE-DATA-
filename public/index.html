@@ -552,7 +552,7 @@
                             <div class="form-col">
                                 <div class="form-group">
                                     <label for="facadePrice"><i class="fas fa-money-bill"></i> سعر م² الواجهة المخصصة</label>
-                                <input type="number" id="facadePrice" class="form-control" min="0">
+                                    <input type="number" id="facadePrice" class="form-control" min="0">
                                 </div>
                             </div>
                         </div>
@@ -931,7 +931,7 @@
 
                 // تنظيف البيانات
                 const cleanFormData = JSON.parse(JSON.stringify(formData, (key, value) => {
-                    return value === undefined ? undefined : value;
+                    return value === undefined ? null : value;
                 }));
 
                 console.log('البيانات المرسلة:', JSON.stringify(cleanFormData, null, 2));
