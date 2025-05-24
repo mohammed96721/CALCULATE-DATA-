@@ -1,50 +1,8 @@
-const jwt = require('jsonwebtoken');
 const Joi = require('joi');
-const crypto = require('crypto');
 
-// ======================================
-// 1. تحقق من التوكن (JWT Authentication)
-// ======================================
-const verifyToken = (req) => {
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        throw new Error('مطلوب توكن مصادقة (Bearer Token)');
-    }
-    
-    const token = authHeader.split(' ')[1];
-    try {
-        return jwt.verify(token, process.env.JWT_SECRET);
-    } catch (err) {
-        throw new Error('توكن غير صالح أو منتهي الصلاحية');
-    }
-};
-
-// ======================================
-// 2. تحقق من التوقيع الرقمي (HMAC-SHA256)
-// ======================================
-const verifySignature = (req) => {
-    const secret = process.env.SIGNATURE_SECRET;
-    if (!secret) throw new Error('تكوين خاطئ للسيرفر');
-
-    const receivedSignature = req.headers['x-signature'];
-    if (!receivedSignature) throw new Error('مطلوب توقيع رقمي');
-
-    const expectedSignature = crypto
-        .createHmac('sha256', secret)
-        .update(JSON.stringify(req.body))
-        .digest('hex');
-
-    if (expectedSignature !== receivedSignature) {
-        throw new Error('توقيع الطلب غير صالح');
-    }
-};
-
-// ======================================
-// 3. تحقق من صحة البيانات (Joi Validation)
-// ======================================
+// تحقق من صحة البيانات (Joi Validation)
 const validateRequestData = (data) => {
     const schema = Joi.object({
-        // معلومات الزبون
         customer: Joi.object({
             name: Joi.string().min(3).max(100).required()
                 .messages({
@@ -56,8 +14,6 @@ const validateRequestData = (data) => {
                     'string.pattern.base': 'رقم الهاتف يجب أن يحتوي أرقامًا فقط'
                 })
         }).required(),
-
-        // موقع الأرض
         location: Joi.object({
             governorate: Joi.string().valid(
                 'baghdad', 'basra', 'najaf', 'karbala', 'erbil',
@@ -67,14 +23,10 @@ const validateRequestData = (data) => {
             ).required(),
             area: Joi.string().min(2).max(100).required()
         }).required(),
-
-        // مواصفات الأرض
         land: Joi.object({
             area: Joi.number().positive().required(),
             facadeWidth: Joi.number().positive().required()
         }).required(),
-
-        // مواصفات البناء
         building: Joi.object({
             floors: Joi.number().integer().min(1).max(50).required(),
             rooms: Joi.number().integer().min(1).required(),
@@ -89,35 +41,28 @@ const validateRequestData = (data) => {
             hasHVAC: Joi.boolean().default(false),
             hasElevator: Joi.boolean().default(false),
             hasFence: Joi.boolean().default(false),
-            
-            // حقول اختيارية
             brickDetails: Joi.object({
                 width: Joi.number().positive(),
                 length: Joi.number().positive(),
                 height: Joi.number().positive(),
                 density: Joi.number().positive()
             }).optional(),
-            
             concreteVolume: Joi.number().positive().optional(),
             apartmentsCount: Joi.number().integer().min(0).optional(),
             customFacade: Joi.object({
                 area: Joi.number().positive(),
                 price: Joi.number().positive()
             }).optional(),
-            
             internalWalls: Joi.object({
                 area: Joi.number().positive(),
                 price: Joi.number().positive()
             }).optional(),
-            
             basement: Joi.object({
                 floors: Joi.number().integer().min(0),
                 ceilingArea: Joi.number().positive(),
                 price: Joi.number().positive()
             }).optional()
         }).required(),
-
-        // الأسعار
         prices: Joi.object({
             flooring: Joi.number().positive().required(),
             wallInstallation: Joi.number().positive().required(),
@@ -125,8 +70,6 @@ const validateRequestData = (data) => {
             windowsDoors: Joi.number().positive().required(),
             stairsRailing: Joi.number().positive().default(0)
         }).required(),
-
-        // التفاصيل الفنية (اختياري)
         technicalDetails: Joi.object({
             totalRoofArea: Joi.number().positive(),
             externalAreas: Joi.number().positive(),
@@ -144,7 +87,7 @@ const validateRequestData = (data) => {
             decorativeWallsArea: Joi.number().positive(),
             claddingWallsArea: Joi.number().positive()
         }).optional()
-    }).options({ abortEarly: false }); // عرض كل الأخطاء مرة واحدة
+    }).options({ abortEarly: false });
 
     const { error } = schema.validate(data);
     if (error) {
@@ -153,33 +96,22 @@ const validateRequestData = (data) => {
     }
 };
 
-// ======================================
-// 4. Middleware الرئيسي للتصدير
-// ======================================
+// Middleware الرئيسي
 module.exports = (req, res, next) => {
     try {
-        // 1. التحقق من التوكن
-        const decodedToken = verifyToken(req);
-        
-        // 2. التحقق من التوقيع الرقمي
-        verifySignature(req);
-        
-        // 3. التحقق من صحة البيانات
+        // التحقق من صحة البيانات فقط
         validateRequestData(req.body);
         
-        // 4. تخزين بيانات المستخدم المصادق عليه للاستخدام لاحقًا
-        req.user = decodedToken;
-        
-        next(); // الانتقال إلى خطوة المعالجة
+        next();
         
     } catch (error) {
-        console.error('فشل التحقق الأمني:', {
+        console.error('فشل التحقق:', {
             ip: req.ip,
             error: error.message,
             body: req.body
         });
         
-        res.status(403).json({ 
+        res.status(400).json({ 
             success: false,
             error: error.message,
             timestamp: new Date().toISOString()
