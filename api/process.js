@@ -1,25 +1,19 @@
-// api/process.js
 const calculate = require('./calculate');
 const advancedCalculate = require('./advancedCalculate');
 
-// التصدير الافتراضي يجب أن يكون دالة (مطلوب لـ Vercel)
-export default async function handler(req, res) {
+function processData(data) {
   try {
-    const data = req.body;
-    console.log('البيانات المستلمة:', data);
-
+    console.log('البيانات في process.js:', data);
     if (!data || typeof data !== 'object') {
-      return res.status(400).json({ error: 'البيانات غير صالحة' });
+      throw new Error('البيانات غير صالحة');
     }
-
     const hasMap = data.hasMap || false;
-    const result = hasMap 
-      ? await advancedCalculate.processAdvanced(data) 
-      : await calculate.processBasic(data);
-
-    return res.status(200).json({ success: true, result });
+    console.log('hasMap:', hasMap);
+    return hasMap ? advancedCalculate.processAdvanced(data) : calculate.processBasic(data);
   } catch (error) {
-    console.error('حدث خطأ:', error);
-    return res.status(500).json({ error: error.message });
+    console.error('خطأ في process.js:', error.stack);
+    throw new Error(`خطأ في توجيه البيانات: ${error.message}`);
   }
 }
+
+module.exports = { processData };
